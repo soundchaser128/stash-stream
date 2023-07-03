@@ -3,12 +3,13 @@ import {gql} from "./__generated__"
 import {useState} from "react"
 import {HiChevronDown, HiChevronUp} from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
-import {useSpring, animated} from "react-spring"
+import {animated} from "react-spring"
 import {useGesture} from "@use-gesture/react"
+import {addApiKey, stashUrl} from "./util"
 
 const GET_SCENES = gql(`
 query GetScenes {
-  findScenes {
+  findScenes(filter: {sort: "created_at", direction: DESC}) {
   	scenes {
       id
       title
@@ -32,7 +33,7 @@ function NavButtons({
     <div className="absolute flex flex-col gap-4 right-2 top-1/2 -translate-y-1/2 z-10">
       <button
         className="rounded-full bg-gray-200 p-2 bg-opacity-50 disabled:opacity-25"
-        disabled={length <= 1 || currentSceneIndex === 0}
+        disabled={currentSceneIndex === 0}
         onClick={() => goToPreviousVideo(0)}
       >
         <HiChevronUp />
@@ -48,17 +49,21 @@ function NavButtons({
   )
 }
 
+const videoStyles = "w-screen h-screen object-cover absolute top-0 left-0"
+
 function App() {
   const {data} = useQuery(GET_SCENES, {})
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0)
   const video = data?.findScenes.scenes[currentSceneIndex]
   const length = data?.findScenes.scenes.length || 0
-  const streamUrl = `http://localhost:9999/scene/${video?.id}/stream`
+  const streamUrl = addApiKey(`${stashUrl}/scene/${video?.id}/stream`)
   const [position, setPosition] = useState(0)
   const previousVideo = data?.findScenes.scenes[currentSceneIndex - 1]
   const nextVideo = data?.findScenes.scenes[currentSceneIndex + 1]
-  const previousStreamUrl = `http://localhost:9999/scene/${previousVideo?.id}/stream`
-  const nextStreamUrl = `http://localhost:9999/scene/${nextVideo?.id}/stream`
+  const previousStreamUrl = addApiKey(
+    `${stashUrl}/scene/${previousVideo?.id}/stream`
+  )
+  const nextStreamUrl = addApiKey(`${stashUrl}/scene/${nextVideo?.id}/stream`)
 
   const bind = useGesture({
     onDrag: ({delta: [, dy]}) => {
@@ -114,7 +119,7 @@ function App() {
         <div className="touch-none" {...bind()}>
           <div className="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex justify-center items-center">
             <animated.video
-              className="w-screen h-screen object-cover absolute top-0 left-0"
+              className={videoStyles}
               src={previousStreamUrl}
               muted
               autoPlay
@@ -125,7 +130,7 @@ function App() {
           </div>
 
           <animated.video
-            className="w-screen h-screen object-cover absolute top-0 left-0"
+            className={videoStyles}
             src={streamUrl}
             muted
             autoPlay
@@ -137,7 +142,7 @@ function App() {
 
           <div className="absolute top-0 left-0 w-screen h-screen">
             <animated.video
-              className="w-screen h-screen object-cover absolute top-0 left-0"
+              className={videoStyles}
               src={nextStreamUrl}
               muted
               autoPlay

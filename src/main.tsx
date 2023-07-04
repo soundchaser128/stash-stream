@@ -11,6 +11,7 @@ import {
 import {setContext} from "@apollo/client/link/context"
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import {apiKey, stashUrl} from "./util.ts"
+import Test from "./Test.tsx"
 
 const httpLink = createHttpLink({
   uri: `${stashUrl}/graphql`,
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+  },
+  {
+    path: "/test",
+    element: <Test />,
   },
 ])
 

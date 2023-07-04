@@ -9,7 +9,7 @@ import {addApiKey, stashUrl} from "./util"
 
 const GET_SCENES = gql(`
 query GetScenes {
-  findScenes(filter: {sort: "created_at", direction: DESC}) {
+  findScenes(filter: {sort: "random", direction: DESC}) {
   	scenes {
       id
       title
@@ -88,6 +88,10 @@ function App() {
     }
   }
 
+  const onScroll: React.UIEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault()
+  }
+
   useHotkeys("w", () => goToPreviousVideo(0), [currentSceneIndex, length])
   useHotkeys("s", () => goToNextVideo(0), [currentSceneIndex, length])
 
@@ -96,7 +100,7 @@ function App() {
   }
 
   return (
-    <main className="h-screen w-screen">
+    <main onScroll={onScroll} className="h-screen w-screen">
       <div className="relative h-full w-full">
         <div className="absolute top-4 left-4 z-10 text-white text-4xl">
           Stash

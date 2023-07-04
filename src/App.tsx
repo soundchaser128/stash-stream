@@ -3,8 +3,7 @@ import {gql} from "./__generated__"
 import {useState} from "react"
 import {HiChevronDown, HiChevronUp} from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
-import {animated, useSpring} from "@react-spring/web"
-import {useGesture} from "@use-gesture/react"
+import {animated, useTransition} from "@react-spring/web"
 import {addApiKey, stashUrl} from "./util"
 import {useSearchParams} from "react-router-dom"
 
@@ -50,7 +49,7 @@ function NavButtons({
   )
 }
 
-const videoStyles = "w-screen h-screen absolute top-0 left-0"
+const videoStyles = "w-screen h-screen"
 
 function App() {
   const [searchParams] = useSearchParams()
@@ -62,55 +61,28 @@ function App() {
     },
   })
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0)
-  const video = data?.findScenes.scenes[currentSceneIndex]
+  console.log({currentSceneIndex})
   const length = data?.findScenes.scenes.length || 0
-  const streamUrl = addApiKey(`${stashUrl}/scene/${video?.id}/stream`)
-  const [showNextVideo, setShowNextVideo] = useState(false)
-  const [showPreviousVideo, setShowPreviousVideo] = useState(false)
-  const previousVideo = data?.findScenes.scenes[currentSceneIndex - 1]
-  const nextVideo = data?.findScenes.scenes[currentSceneIndex + 1]
-  const previousStreamUrl = addApiKey(
-    `${stashUrl}/scene/${previousVideo?.id}/stream`
-  )
-  const nextStreamUrl = addApiKey(`${stashUrl}/scene/${nextVideo?.id}/stream`)
-  const [springs, api] = useSpring(() => ({
-    from: {y: 0},
-    config: {
-      duration: 500,
-    },
+
+  // const transitionRef = useSpringRef()
+
+  const [transitions, api] = useTransition(currentSceneIndex, () => ({
+    // ref: transitionRef,
+    keys: null,
+    duration: 1000,
+    from: {transform: "translate3d(0, 0, 0)"},
+    enter: {transform: "translate3d(0, 100%, 0)"},
+    leave: {transform: "translate3d(0, -100%, 0)"},
+    exitBeforeEnter: true,
   }))
 
-  // const bind = useGesture({
-  //   onDrag: ({delta: [, dy]}) => {
-  //     setPosition((p) => Math.min(0, p + dy))
-  //     if (Math.abs(position + dy) > window.innerHeight) {
-  //       goToNextVideo(-position)
-  //     }
-  //   },
-  // })
-
   const goToNextVideo = () => {
-    api.start({
-      from: {y: 0},
-      to: {y: -window.innerHeight},
-    })
-    setShowNextVideo(true)
-    window.setTimeout(() => {
-      setShowNextVideo(false)
-      setCurrentSceneIndex((currentSceneIndex + 1) % length)
-    }, 500)
+    api.start()
+    setCurrentSceneIndex((currentSceneIndex + 1) % length)
   }
 
   const goToPreviousVideo = () => {
-    api.start({
-      from: {y: 0},
-      to: {y: window.innerHeight},
-    })
-    setShowPreviousVideo(true)
-    window.setTimeout(() => {
-      setShowPreviousVideo(false)
-      setCurrentSceneIndex(Math.max((currentSceneIndex - 1) % length, 0))
-    }, 500)
+    setCurrentSceneIndex(Math.max((currentSceneIndex - 1) % length, 0))
   }
 
   const onScroll: React.UIEventHandler<HTMLDivElement> = (e) => {
@@ -120,24 +92,16 @@ function App() {
   useHotkeys("w", goToPreviousVideo, [currentSceneIndex, length])
   useHotkeys("s", goToNextVideo, [currentSceneIndex, length])
 
-  const onEnded = () => {
-    setCurrentSceneIndex((currentSceneIndex + 1) % length)
-  }
-
   return (
-    <main onScroll={onScroll} className="h-screen w-screen">
+    <main onScroll={onScroll} className="h-screen w-screen bg-purple-200">
       <div className="relative h-full w-full">
-        <div className="absolute top-4 left-4 z-10 text-white text-4xl">
-          Stash
-        </div>
-
-        <div className="">
+        {/* <div className="">
           <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
-            <div className="flex flex-row gap-1 truncate text-white text-4xl text-shadow-lg">
+            <div className="flex flex-row gap-1 truncate text-black text-4xl text-shadow-lg">
               {video?.title || video?.files[0].basename}
             </div>
           </div>
-        </div>
+        </div> */}
 
         <NavButtons
           currentSceneIndex={currentSceneIndex}
@@ -146,39 +110,21 @@ function App() {
         />
 
         <div>
-          {showPreviousVideo && (
-            <animated.video
-              className={videoStyles}
-              src={previousStreamUrl}
-              muted
-              autoPlay
-              style={{
-                top: 0,
-              }}
-            />
-          )}
-          <animated.video
-            className={videoStyles}
-            src={streamUrl}
-            muted
-            autoPlay
-            onEnded={onEnded}
-            style={{
-              top: 0,
-              ...springs,
-            }}
-          />
-          {showNextVideo && (
-            <animated.video
-              className={videoStyles}
-              src={nextStreamUrl}
-              muted
-              autoPlay
-              style={{
-                top: 0,
-              }}
-            />
-          )}
+          {transitions((style, i) => {
+            const src = addApiKey(
+              `${stashUrl}/scene/${data?.findScenes.scenes[i]?.id}/stream`
+            )
+            return (
+              <animated.video
+                className={videoStyles}
+                src={src}
+                style={style}
+                muted
+                autoPlay
+                controls
+              />
+            )
+          })}
         </div>
       </div>
     </main>

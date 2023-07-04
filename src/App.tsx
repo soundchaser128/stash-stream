@@ -8,8 +8,8 @@ import {useGesture} from "@use-gesture/react"
 import {addApiKey, stashUrl} from "./util"
 
 const GET_SCENES = gql(`
-query GetScenes {
-  findScenes(filter: {sort: "random", direction: DESC}) {
+query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String) {
+  findScenes(filter: {sort: $sort, direction: $direction, q: $query}) {
   	scenes {
       id
       title
@@ -52,7 +52,13 @@ function NavButtons({
 const videoStyles = "w-screen h-screen object-cover absolute top-0 left-0"
 
 function App() {
-  const {data} = useQuery(GET_SCENES, {})
+  const [query, setQuery] = useState("")
+  const {data} = useQuery(GET_SCENES, {
+    variables: {
+      query: query,
+      sort: "random",
+    },
+  })
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0)
   const video = data?.findScenes.scenes[currentSceneIndex]
   const length = data?.findScenes.scenes.length || 0

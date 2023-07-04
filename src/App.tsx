@@ -3,9 +3,10 @@ import {gql} from "./__generated__"
 import {useState} from "react"
 import {HiChevronDown, HiChevronUp} from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
-import {animated} from "react-spring"
+import {animated, useSpring} from "@react-spring/web"
 import {useGesture} from "@use-gesture/react"
 import {addApiKey, stashUrl} from "./util"
+import {useSearchParams} from "react-router-dom"
 
 const GET_SCENES = gql(`
 query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String) {
@@ -49,10 +50,11 @@ function NavButtons({
   )
 }
 
-const videoStyles = "w-screen h-screen object-cover absolute top-0 left-0"
+const videoStyles = "w-screen h-screen absolute top-0 left-0"
 
 function App() {
-  const [query, setQuery] = useState("")
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get("q") || "")
   const {data} = useQuery(GET_SCENES, {
     variables: {
       query: query,
@@ -63,43 +65,60 @@ function App() {
   const video = data?.findScenes.scenes[currentSceneIndex]
   const length = data?.findScenes.scenes.length || 0
   const streamUrl = addApiKey(`${stashUrl}/scene/${video?.id}/stream`)
-  const [position, setPosition] = useState(0)
+  const [showNextVideo, setShowNextVideo] = useState(false)
+  const [showPreviousVideo, setShowPreviousVideo] = useState(false)
   const previousVideo = data?.findScenes.scenes[currentSceneIndex - 1]
   const nextVideo = data?.findScenes.scenes[currentSceneIndex + 1]
   const previousStreamUrl = addApiKey(
     `${stashUrl}/scene/${previousVideo?.id}/stream`
   )
   const nextStreamUrl = addApiKey(`${stashUrl}/scene/${nextVideo?.id}/stream`)
-
-  const bind = useGesture({
-    onDrag: ({delta: [, dy]}) => {
-      setPosition((p) => Math.min(0, p + dy))
-      if (Math.abs(position + dy) > window.innerHeight) {
-        goToNextVideo(-position)
-      }
+  const [springs, api] = useSpring(() => ({
+    from: {y: 0},
+    config: {
+      duration: 500,
     },
-  })
+  }))
 
-  const goToNextVideo = (position?: number) => {
-    setCurrentSceneIndex((currentSceneIndex + 1) % length)
-    if (typeof position !== "undefined") {
-      setPosition(position)
-    }
+  // const bind = useGesture({
+  //   onDrag: ({delta: [, dy]}) => {
+  //     setPosition((p) => Math.min(0, p + dy))
+  //     if (Math.abs(position + dy) > window.innerHeight) {
+  //       goToNextVideo(-position)
+  //     }
+  //   },
+  // })
+
+  const goToNextVideo = () => {
+    api.start({
+      from: {y: 0},
+      to: {y: -window.innerHeight},
+    })
+    setShowNextVideo(true)
+    window.setTimeout(() => {
+      setShowNextVideo(false)
+      setCurrentSceneIndex((currentSceneIndex + 1) % length)
+    }, 500)
   }
 
-  const goToPreviousVideo = (position?: number) => {
-    setCurrentSceneIndex(Math.max((currentSceneIndex - 1) % length, 0))
-    if (typeof position !== "undefined") {
-      setPosition(position)
-    }
+  const goToPreviousVideo = () => {
+    api.start({
+      from: {y: 0},
+      to: {y: window.innerHeight},
+    })
+    setShowPreviousVideo(true)
+    window.setTimeout(() => {
+      setShowPreviousVideo(false)
+      setCurrentSceneIndex(Math.max((currentSceneIndex - 1) % length, 0))
+    }, 500)
   }
 
   const onScroll: React.UIEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault()
   }
 
-  useHotkeys("w", () => goToPreviousVideo(0), [currentSceneIndex, length])
-  useHotkeys("s", () => goToNextVideo(0), [currentSceneIndex, length])
+  useHotkeys("w", goToPreviousVideo, [currentSceneIndex, length])
+  useHotkeys("s", goToNextVideo, [currentSceneIndex, length])
 
   const onEnded = () => {
     setCurrentSceneIndex((currentSceneIndex + 1) % length)
@@ -126,19 +145,18 @@ function App() {
           goToPreviousVideo={goToPreviousVideo}
         />
 
-        <div className="touch-none" {...bind()}>
-          <div className="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex justify-center items-center">
+        <div>
+          {showPreviousVideo && (
             <animated.video
               className={videoStyles}
               src={previousStreamUrl}
               muted
               autoPlay
               style={{
-                top: window.innerHeight + position,
+                top: 0,
               }}
             />
-          </div>
-
+          )}
           <animated.video
             className={videoStyles}
             src={streamUrl}
@@ -146,21 +164,21 @@ function App() {
             autoPlay
             onEnded={onEnded}
             style={{
-              top: position,
+              top: 0,
+              ...springs,
             }}
           />
-
-          <div className="absolute top-0 left-0 w-screen h-screen">
+          {showNextVideo && (
             <animated.video
               className={videoStyles}
               src={nextStreamUrl}
               muted
               autoPlay
               style={{
-                top: window.innerHeight + position,
+                top: 0,
               }}
             />
-          </div>
+          )}
         </div>
       </div>
     </main>

@@ -14,13 +14,14 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.16",
+    "@react-spring/web": "^9.7.3",
     "@use-gesture/react": "^10.2.27",
     "graphql": "^16.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.4.0",
     "react-icons": "^4.10.1",
-    "react-spring": "^9.7.2"
+    "react-router-dom": "^6.14.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^4.0.1",

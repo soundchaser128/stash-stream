@@ -7,7 +7,7 @@ import {animated, useTransition} from "@react-spring/web"
 import {addApiKey, stashUrl} from "./util"
 import {useSearchParams} from "react-router-dom"
 
-const GET_SCENES = gql(`
+export const GET_SCENES = gql(`
 query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String) {
   findScenes(filter: {sort: $sort, direction: $direction, q: $query}) {
   	scenes {

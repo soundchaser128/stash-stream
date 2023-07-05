@@ -3,6 +3,7 @@ export const stashUrl = import.meta.env.VITE_STASH_URL
 
 export const addApiKey = (url: string) => {
   if (apiKey) {
+    console.log(url)
     const parsedUrl = new URL(url)
     parsedUrl.searchParams.append("apikey", apiKey)
     return parsedUrl.toString()

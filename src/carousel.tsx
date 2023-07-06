@@ -1,6 +1,6 @@
-import {useState} from "react"
-import {useTransition, animated} from "@react-spring/web"
-import {HiChevronDown, HiChevronUp} from "react-icons/hi2"
+import {useEffect, useRef, useState} from "react"
+import {useTransition, animated, useSpring, a} from "@react-spring/web"
+import {HiCamera, HiChevronDown, HiChevronUp, HiUser} from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
 
@@ -14,7 +14,7 @@ function NavButtons({
   goToNextVideo: (position?: number) => void
 }) {
   return (
-    <div className="absolute flex flex-col gap-6 right-2 top-1/2 -translate-y-1/2 z-10">
+    <div className="absolute flex flex-col gap-6 right-4 top-1/2 -translate-y-1/2 z-20">
       <button
         className="rounded-full bg-gray-200 p-3 bg-opacity-50 disabled:opacity-25"
         disabled={currentSceneIndex === 0}
@@ -36,6 +36,8 @@ function NavButtons({
 interface Video {
   url: string
   title: string
+  performers: string[]
+  studio?: string
   date?: string
 }
 
@@ -45,13 +47,46 @@ interface Props {
 }
 
 function Overlay({video}: {video: Video}) {
+  const [springs, api] = useSpring(() => ({
+    from: {opacity: 0},
+    config: {
+      duration: 250,
+    },
+  }))
+  const timeout = useRef<number>()
+
+  const onMouseMove = () => {
+    clearTimeout(timeout.current)
+    api.start({opacity: 1})
+    timeout.current = window.setTimeout(() => {
+      api.start({opacity: 0})
+    }, 2000)
+  }
+
   return (
-    <>
-      <span className="absolute w-full text-center truncate bottom-4 text-white text-lg">
-        {video.title}
-      </span>
-      <span className="absolute top-2 left-2 text-lg text-white">Stash</span>
-    </>
+    <animated.div
+      onMouseMove={onMouseMove}
+      className="w-full h-full absolute z-10"
+      style={springs}
+    >
+      <div className="absolute w-full text-center truncate bottom-4 text-white ">
+        <div className="p-2 bg-black bg-opacity-50">
+          <h1 className="text-4xl">{video.title}</h1>
+          {video.performers.length > 0 && (
+            <p className="text-xl">
+              <HiUser className="inline w-4 h-4 mr-2" />
+              {video.performers.join(", ")}
+            </p>
+          )}
+          {video.studio && (
+            <p className="text-xl">
+              <HiCamera className="inline w-4 h-4 mr-2" />
+              {video.studio}
+            </p>
+          )}
+        </div>
+      </div>
+    </animated.div>
   )
 }
 
@@ -86,8 +121,8 @@ function VideoCarousel({videos, cropVideo}: Props) {
     setDirection(-1)
   }
 
-  useHotkeys("w", previousVideo, [currentVideoIndex, length])
-  useHotkeys("s", nextVideo, [currentVideoIndex, length])
+  useHotkeys(["w", "up"], previousVideo, [currentVideoIndex, length])
+  useHotkeys(["s", "down"], nextVideo, [currentVideoIndex, length])
 
   return (
     <div {...bind()} className="relative w-full h-full touch-none">

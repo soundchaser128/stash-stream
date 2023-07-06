@@ -36,16 +36,11 @@ function App() {
   })
   const videos = data?.findScenes.scenes.map((video) => {
     const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)
-    let title = video.title || video.files[0].basename
-    if (video.performers.length > 0) {
-      title = `${video.performers.map((p) => p.name).join(", ")} - ${title}`
-    }
-
-    if (video.studio?.name) {
-      title = `${video.studio.name} - ${title}`
-    }
+    const title = video.title || video.files[0].basename
     const date = video.date || undefined
-    return {url, title, date}
+    const performers = video.performers.map((performer) => performer.name)
+    const studio = video.studio?.name || undefined
+    return {url, title, date, performers, studio}
   })
 
   if (!videos) {

@@ -2,6 +2,7 @@ import {useState} from "react"
 import {useTransition, animated} from "@react-spring/web"
 import {HiChevronDown, HiChevronUp} from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
+import {useDrag} from "@use-gesture/react"
 
 function NavButtons({
   currentSceneIndex,
@@ -13,20 +14,20 @@ function NavButtons({
   goToNextVideo: (position?: number) => void
 }) {
   return (
-    <div className="absolute flex flex-col gap-4 right-2 top-1/2 -translate-y-1/2 z-10">
+    <div className="absolute flex flex-col gap-6 right-2 top-1/2 -translate-y-1/2 z-10">
       <button
-        className="rounded-full bg-gray-200 p-2 bg-opacity-50 disabled:opacity-25"
+        className="rounded-full bg-gray-200 p-3 bg-opacity-50 disabled:opacity-25"
         disabled={currentSceneIndex === 0}
         onClick={() => goToPreviousVideo(0)}
       >
-        <HiChevronUp />
+        <HiChevronUp className="w-8 h-8" />
       </button>
 
       <button
-        className="rounded-full bg-gray-200 p-2 bg-opacity-50"
+        className="rounded-full bg-gray-200 p-3 bg-opacity-50"
         onClick={() => goToNextVideo(0)}
       >
-        <HiChevronDown />
+        <HiChevronDown className="w-8 h-8" />
       </button>
     </div>
   )
@@ -42,14 +43,23 @@ function VideoCarousel({videos}: {videos: string[]}) {
     leave: {transform: `translateY(${direction === 1 ? "-100%" : "100%"})`},
   })
 
+  const bind = useDrag((props) => {
+    const [, swipeY] = props.swipe
+    if (swipeY === -1) {
+      nextVideo()
+    } else if (swipeY === 1) {
+      previousVideo()
+    }
+  })
+
   const nextVideo = () => {
     setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videos.length)
     setDirection(1)
   }
 
   const previousVideo = () => {
-    setCurrentVideoIndex(
-      (prevIndex) => (prevIndex - 1 + videos.length) % videos.length
+    setCurrentVideoIndex((prevIndex) =>
+      Math.max(0, (prevIndex - 1 + videos.length) % videos.length)
     )
     setDirection(-1)
   }
@@ -58,11 +68,11 @@ function VideoCarousel({videos}: {videos: string[]}) {
   useHotkeys("s", nextVideo, [currentVideoIndex, length])
 
   return (
-    <div style={{position: "relative", width: "100%", height: "100%"}}>
+    <div {...bind()} className="relative w-full h-full touch-none">
       {transitions((style, index) => (
         <animated.video
           src={videos[index]}
-          controls
+          playsInline
           autoPlay
           muted
           loop

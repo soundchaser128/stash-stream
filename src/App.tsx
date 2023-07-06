@@ -61,7 +61,6 @@ function App() {
     },
   })
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0)
-  console.log({currentSceneIndex})
   const length = data?.findScenes.scenes.length || 0
 
   // const transitionRef = useSpringRef()

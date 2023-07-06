@@ -10,6 +10,13 @@ query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String) {
   findScenes(filter: {sort: $sort, direction: $direction, q: $query}) {
   	scenes {
       id
+      date
+      performers {
+        name
+      }
+      studio {
+        name
+      }
       title
       files {
         basename
@@ -28,7 +35,17 @@ function App() {
     },
   })
   const videos = data?.findScenes.scenes.map((video) => {
-    return addApiKey(`${stashUrl}/scene/${video.id}/stream`)
+    const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)
+    let title = video.title || video.files[0].basename
+    if (video.performers.length > 0) {
+      title = `${video.performers.map((p) => p.name).join(", ")} - ${title}`
+    }
+
+    if (video.studio?.name) {
+      title = `${video.studio.name} - ${title}`
+    }
+    const date = video.date || undefined
+    return {url, title, date}
   })
 
   if (!videos) {

@@ -9,9 +9,9 @@ export default {
   theme: {
     extend: {
       textShadow: {
-        sm: '0 1px 2px var(--tw-shadow-color)',
-        DEFAULT: '0 2px 4px var(--tw-shadow-color)',
-        lg: '0 8px 16px var(--tw-shadow-color)',
+        sm: '0 1px 2px black',
+        DEFAULT: '0 2px 4px black',
+        lg: '0 8px 16px black',
       },
     },
   },

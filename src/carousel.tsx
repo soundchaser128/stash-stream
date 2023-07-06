@@ -33,7 +33,29 @@ function NavButtons({
   )
 }
 
-function VideoCarousel({videos}: {videos: string[]}) {
+interface Video {
+  url: string
+  title: string
+  date?: string
+}
+
+interface Props {
+  videos: Video[]
+  cropVideo?: boolean
+}
+
+function Overlay({video}: {video: Video}) {
+  return (
+    <>
+      <span className="absolute w-full text-center truncate bottom-4 text-white text-lg">
+        {video.title}
+      </span>
+      <span className="absolute top-2 left-2 text-lg text-white">Stash</span>
+    </>
+  )
+}
+
+function VideoCarousel({videos, cropVideo}: Props) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [direction, setDirection] = useState(1)
 
@@ -71,17 +93,15 @@ function VideoCarousel({videos}: {videos: string[]}) {
     <div {...bind()} className="relative w-full h-full touch-none">
       {transitions((style, index) => (
         <animated.video
-          src={videos[index]}
+          src={videos[index].url}
           playsInline
           autoPlay
           muted
           loop
+          className="absolute w-full h-full"
           style={{
             ...style,
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            // objectFit: "cover",
+            objectFit: cropVideo ? "cover" : undefined,
           }}
         />
       ))}
@@ -90,6 +110,7 @@ function VideoCarousel({videos}: {videos: string[]}) {
         goToNextVideo={nextVideo}
         goToPreviousVideo={previousVideo}
       />
+      <Overlay video={videos[currentVideoIndex]} />
     </div>
   )
 }

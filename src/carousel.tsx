@@ -137,7 +137,6 @@ function Overlay({
 }
 
 function VideoCarousel({videos, cropVideo, onQueryChange, loading}: Props) {
-  console.log(videos)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [direction, setDirection] = useState(1)
 
@@ -157,11 +156,13 @@ function VideoCarousel({videos, cropVideo, onQueryChange, loading}: Props) {
   })
 
   const nextVideo = () => {
+    if (videos.length === 0) return
     setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videos.length)
     setDirection(1)
   }
 
   const previousVideo = () => {
+    if (videos.length === 0) return
     setCurrentVideoIndex((prevIndex) =>
       Math.max(0, (prevIndex - 1 + videos.length) % videos.length)
     )
@@ -177,7 +178,7 @@ function VideoCarousel({videos, cropVideo, onQueryChange, loading}: Props) {
         videos.length > 0 &&
         transitions((style, index) => (
           <animated.video
-            src={videos[index]?.url}
+            src={videos[index].url}
             playsInline
             autoPlay
             muted

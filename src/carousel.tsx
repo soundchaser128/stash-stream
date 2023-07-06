@@ -10,7 +10,7 @@ import {
 } from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
-import {useNavigate, useSearchParams} from "react-router-dom"
+import {useNavigate} from "react-router-dom"
 import debounce from "lodash.debounce"
 
 interface Video {
@@ -22,7 +22,7 @@ interface Video {
 }
 
 const buttonStyles =
-  "rounded-full bg-gray-200 p-3 bg-opacity-50 disabled:opacity-25"
+  "rounded-full p-3 bg-purple-400 bg-opacity-50 text-white disabled:opacity-25"
 
 function NavButtons({
   currentSceneIndex,
@@ -73,9 +73,7 @@ function Overlay({
 }: OverlayProps) {
   const overlayTimeout = 2000
 
-  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const [query, setQuery] = useState(searchParams.get("q") || "")
   const [visible, setVisible] = useState(true)
   const [springs, api] = useSpring(() => ({
     from: {opacity: 0},
@@ -106,7 +104,7 @@ function Overlay({
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(timeout.current)
-    setQuery(event.target.value)
+    // setQuery(event.target.value)
     debouncedSetQueryInUrl(event.target.value)
 
     api.start({opacity: 1})
@@ -131,14 +129,13 @@ function Overlay({
         </>
       )}
       <input
-        value={query}
         onChange={onChange}
         placeholder="Search..."
         className="text-white absolute top-1 w-60 text-center left-1/2 translate -translate-x-1/2 h-12 px-4 leading-6 bg-opacity-0 border-b-2 border-white bg-transparent focus:border-b-2 focus:outline-none placeholder-white"
       />
 
       {video && (
-        <section className="absolute w-full text-center truncate bottom-4 text-white bg-purple-400 bg-opacity-25 p-2">
+        <section className="absolute left-1/2 rounded-xl shadow-lg -translate-x-1/2 text-center truncate bottom-4 text-white bg-purple-400 bg-opacity-50 p-2">
           <h1 className="text-xl lg:text-4xl">{video.title}</h1>
           {video.performers.length > 0 && (
             <p className="text-lg lg:text-xl">

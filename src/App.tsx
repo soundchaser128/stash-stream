@@ -1,10 +1,10 @@
 import {useQuery} from "@apollo/client"
 import {gql} from "./__generated__"
-import {debounce} from "ts-debounce"
+import debounce from "lodash.debounce"
 import {addApiKey, stashUrl} from "./util"
 import {useNavigate, useSearchParams} from "react-router-dom"
 import VideoCarousel from "./carousel"
-import {useState} from "react"
+import {useCallback, useState} from "react"
 
 const GET_SCENES = gql(`
 query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String) {
@@ -47,14 +47,17 @@ function App() {
     return {url, title, date, performers, studio}
   })
 
-  const setQueryInUrl = debounce((query: string) => {
+  const setQueryInUrl = (query: string) => {
+    console.log("calling debounced fn with", query)
     navigate(`?q=${encodeURIComponent(query)}`)
-  }, 500)
-
-  const setQueryInUrlAndState = (query: string) => {
-    setQuery(query)
-    setQueryInUrl(query)
   }
+
+  const setQueryInUrlDebounced = debounce(setQueryInUrl, 500)
+
+  const setQueryInUrlAndState = useCallback((query: string) => {
+    setQuery(query)
+    setQueryInUrlDebounced(query)
+  }, [])
 
   return (
     <main className="h-screen w-screen bg-black">

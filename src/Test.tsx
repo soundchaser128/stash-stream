@@ -7,7 +7,7 @@ import {HiChevronDown, HiChevronUp} from "react-icons/hi2"
 
 const classes = "absolute w-full h-full flex justify-center items-center"
 
-function NavButtons({
+export function NavButtons({
   currentSceneIndex,
   goToPreviousVideo,
   goToNextVideo,
@@ -78,14 +78,15 @@ export default function App() {
         goToPreviousVideo={onPreviousVideo}
         currentSceneIndex={index}
       />
-      {transitions((style, i) => {
+      {transitions((style, i, state) => {
+        console.log({style, i, state})
         const url = addApiKey(`${stashUrl}/scene/${videos[i]?.id}/stream`)
         return (
           <animated.div
             className={classes}
             style={{...style, background: "lightblue"}}
           >
-            <video className="w-full h-full" autoPlay src={url} />
+            <video muted className="w-full h-full" autoPlay src={url} />
           </animated.div>
         )
       })}

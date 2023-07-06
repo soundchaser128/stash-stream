@@ -4,6 +4,7 @@ import {debounce} from "ts-debounce"
 import {addApiKey, stashUrl} from "./util"
 import {useNavigate, useSearchParams} from "react-router-dom"
 import VideoCarousel from "./carousel"
+import {useState} from "react"
 
 const GET_SCENES = gql(`
 query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String) {
@@ -25,13 +26,15 @@ query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String) {
   }
 }`)
 
+const randomPart = Math.floor(Math.random() * 10 ** 8)
+
 function App() {
   const [searchParams] = useSearchParams()
-  const query = searchParams.get("q") || ""
+  const [query, setQuery] = useState(searchParams.get("q") || "")
   const {data, loading} = useQuery(GET_SCENES, {
     variables: {
       query: query,
-      sort: "random",
+      sort: `random_${randomPart}`,
     },
   })
   const navigate = useNavigate()
@@ -44,9 +47,14 @@ function App() {
     return {url, title, date, performers, studio}
   })
 
-  const setQuery = debounce((query: string) => {
+  const setQueryInUrl = debounce((query: string) => {
     navigate(`?q=${encodeURIComponent(query)}`)
   }, 500)
+
+  const setQueryInUrlAndState = (query: string) => {
+    setQuery(query)
+    setQueryInUrl(query)
+  }
 
   return (
     <main className="h-screen w-screen bg-purple-200">
@@ -54,7 +62,8 @@ function App() {
         <VideoCarousel
           loading={loading}
           videos={videos || []}
-          onQueryChange={(query) => setQuery(query)}
+          onQueryChange={(query) => setQueryInUrlAndState(query)}
+          query={query}
         />
       </div>
     </main>

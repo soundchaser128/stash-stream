@@ -1,70 +1,70 @@
-import React, {useLayoutEffect, useState} from "react"
-import {useSpringRef, animated, useTransition} from "@react-spring/web"
-import styles from "./styles.module.css"
-import {addApiKey, stashUrl} from "./util"
-import {useQuery} from "@apollo/client"
-import {GET_SCENES} from "./App"
+import React, {useState, CSSProperties, useEffect} from "react"
+import {
+  useTransition,
+  animated,
+  AnimatedProps,
+  useSpringRef,
+} from "@react-spring/web"
+import {addApiKey} from "./util"
+
+const classes =
+  "absolute cursor-pointer w-full h-full flex justify-center items-center text-6xl"
+
+const videos = [
+  addApiKey("http://nas.tomasi.xyz:9999/scene/5107/stream"),
+  addApiKey("http://nas.tomasi.xyz:9999/scene/2972/stream"),
+  addApiKey("http://nas.tomasi.xyz:9999/scene/2997/stream"),
+]
+
+const pages: ((
+  props: AnimatedProps<{style: CSSProperties}>
+) => React.ReactElement)[] = [
+  ({style}) => (
+    <animated.div
+      className={classes}
+      style={{...style, background: "lightpink"}}
+    >
+      <video autoPlay src={videos[0]} />
+    </animated.div>
+  ),
+  ({style}) => (
+    <animated.div
+      className={classes}
+      style={{...style, background: "lightgreen"}}
+    >
+      <video autoPlay src={videos[1]} />
+    </animated.div>
+  ),
+  ({style}) => (
+    <animated.div
+      className={classes}
+      style={{...style, background: "lightblue"}}
+    >
+      <video autoPlay src={videos[2]} />
+    </animated.div>
+  ),
+]
 
 export default function App() {
-  const {data} = useQuery(GET_SCENES, {
-    variables: {
-      query: "",
-      sort: "random",
-    },
+  const [index, set] = useState(0)
+  const onClick = () => set((state) => (state + 1) % 3)
+  const transRef = useSpringRef()
+  const transitions = useTransition(index, {
+    ref: transRef,
+    keys: null,
+    from: {opacity: 0, transform: "translate3d(100%,0,0)"},
+    enter: {opacity: 1, transform: "translate3d(0%,0,0)"},
+    leave: {opacity: 0, transform: "translate3d(-50%,0,0)"},
   })
-  const videos = data?.findScenes.scenes
-  const [activeIndex, setActiveIndex] = useState(0)
-  const springApi = useSpringRef()
-  // const length = videos?.length || 0
-  // console.log(videos)
-
-  const transitions = useTransition(activeIndex, {
-    from: {y: "0%"},
-    enter: {y: "-100%"},
-    leave: {y: "100%"},
-    onRest: (_springs, _ctrl, item) => {
-      if (activeIndex === item) {
-        console.log("advancing index")
-        setActiveIndex(activeIndex + 1)
-      }
-    },
-    exitBeforeEnter: true,
-    config: {
-      duration: 1500,
-    },
-    // delay: 1000,
-    ref: springApi,
-  })
-
-  const onNext = () => {
-    springApi.start()
-  }
-
-  // useLayoutEffect(() => {
-  //   springApi.start()
-  // }, [activeIndex])
-
-  if (!videos) {
-    return null
-  }
-
+  useEffect(() => {
+    transRef.start()
+  }, [index])
   return (
-    <div className={styles.container}>
-      <div className={styles.container__inner}>
-        <button
-          onClick={onNext}
-          className="absolute z-10 rounded-lg p-3 bg-black bg-opacity-50 bottom-2 left-1/2 text-white"
-        >
-          Next
-        </button>
-        {transitions((springs, item) => (
-          <animated.div className={styles.img__container} style={springs}>
-            <video
-              src={addApiKey(`${stashUrl}/scene/${videos[item].id}/stream`)}
-            />
-          </animated.div>
-        ))}
-      </div>
+    <div className={`flex w-screen h-screen`} onClick={onClick}>
+      {transitions((style, i) => {
+        const Page = pages[i]
+        return <Page style={style} />
+      })}
     </div>
   )
 }

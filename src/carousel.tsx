@@ -1,6 +1,7 @@
 import {useRef, useState} from "react"
 import {useTransition, animated, useSpring} from "@react-spring/web"
 import {
+  HiCalendar,
   HiCamera,
   HiChevronDown,
   HiChevronUp,
@@ -9,6 +10,8 @@ import {
 } from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
+import {useNavigate, useSearchParams} from "react-router-dom"
+import debounce from "lodash.debounce"
 
 interface Video {
   url: string
@@ -52,16 +55,12 @@ interface OverlayProps {
   index: number
   nextVideo: () => void
   previousVideo: () => void
-  onQueryChange: (query: string) => void
-  query: string
   onCropVideo: () => void
 }
 
 interface Props {
   videos: Video[]
   cropVideo?: boolean
-  onQueryChange: (query: string) => void
-  query: string
   loading?: boolean
 }
 
@@ -70,12 +69,13 @@ function Overlay({
   index,
   nextVideo,
   previousVideo,
-  onQueryChange,
   onCropVideo,
-  query,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const [query, setQuery] = useState(searchParams.get("q") || "")
   const [visible, setVisible] = useState(true)
   const [springs, api] = useSpring(() => ({
     from: {opacity: 0},
@@ -96,9 +96,19 @@ function Overlay({
     }, overlayTimeout)
   }
 
+  const setQueryInUrl = (query: string) => {
+    navigate({
+      search: `?q=${encodeURIComponent(query)}`,
+    })
+  }
+
+  const debouncedSetQueryInUrl = debounce(setQueryInUrl, 500)
+
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(timeout.current)
-    onQueryChange(event.target.value)
+    setQuery(event.target.value)
+    debouncedSetQueryInUrl(event.target.value)
+
     api.start({opacity: 1})
     timeout.current = window.setTimeout(() => {
       api.start({opacity: 0})
@@ -142,6 +152,12 @@ function Overlay({
               {video.studio}
             </p>
           )}
+          {video.date && (
+            <p className="text-lg lg:text-xl">
+              <HiCalendar className="inline w-4 h-4 mr-2" />
+              {video.date}
+            </p>
+          )}
         </section>
       )}
       <button
@@ -154,7 +170,7 @@ function Overlay({
   )
 }
 
-function VideoCarousel({videos, onQueryChange, loading, query}: Props) {
+function VideoCarousel({videos, loading}: Props) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const [cropVideo, setCropVideo] = useState(false)
@@ -215,9 +231,7 @@ function VideoCarousel({videos, onQueryChange, loading, query}: Props) {
         nextVideo={nextVideo}
         previousVideo={previousVideo}
         index={currentVideoIndex}
-        onQueryChange={onQueryChange}
         onCropVideo={() => setCropVideo((prev) => !prev)}
-        query={query}
       />
     </div>
   )

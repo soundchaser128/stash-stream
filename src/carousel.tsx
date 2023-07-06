@@ -74,6 +74,8 @@ function Overlay({
   onCropVideo,
   query,
 }: OverlayProps) {
+  const overlayTimeout = 2000
+
   const [visible, setVisible] = useState(true)
   const [springs, api] = useSpring(() => ({
     from: {opacity: 0},
@@ -91,7 +93,7 @@ function Overlay({
     api.start({opacity: 1})
     timeout.current = window.setTimeout(() => {
       api.start({opacity: 0})
-    }, 2000)
+    }, overlayTimeout)
   }
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +102,7 @@ function Overlay({
     api.start({opacity: 1})
     timeout.current = window.setTimeout(() => {
       api.start({opacity: 0})
-    }, 2000)
+    }, overlayTimeout)
   }
 
   return (
@@ -126,7 +128,7 @@ function Overlay({
       />
 
       {video && (
-        <div className="absolute w-full text-center truncate bottom-4 text-white">
+        <section className="absolute w-full text-center truncate bottom-4 text-white bg-purple-400 bg-opacity-25 p-2">
           <h1 className="text-xl lg:text-4xl">{video.title}</h1>
           {video.performers.length > 0 && (
             <p className="text-lg lg:text-xl">
@@ -140,7 +142,7 @@ function Overlay({
               {video.studio}
             </p>
           )}
-        </div>
+        </section>
       )}
       <button
         onClick={onCropVideo}

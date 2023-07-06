@@ -57,7 +57,7 @@ function App() {
   }
 
   return (
-    <main className="h-screen w-screen bg-purple-200">
+    <main className="h-screen w-screen bg-black">
       <div className="relative h-full w-full">
         <VideoCarousel
           loading={loading}

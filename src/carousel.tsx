@@ -44,13 +44,33 @@ interface Video {
 interface Props {
   videos: Video[]
   cropVideo?: boolean
+  onQueryChange: (query: string) => void
+  loading?: boolean
 }
 
-function Overlay({video}: {video: Video}) {
+interface OverlayProps {
+  video?: Video
+  index: number
+  nextVideo: () => void
+  previousVideo: () => void
+  onQueryChange: (query: string) => void
+}
+
+function Overlay({
+  video,
+  index,
+  nextVideo,
+  previousVideo,
+  onQueryChange,
+}: OverlayProps) {
+  const [visible, setVisible] = useState(true)
   const [springs, api] = useSpring(() => ({
     from: {opacity: 0},
     config: {
       duration: 250,
+    },
+    onRest: () => {
+      setVisible(springs.opacity.get() === 1)
     },
   }))
   const timeout = useRef<number>()
@@ -63,34 +83,61 @@ function Overlay({video}: {video: Video}) {
     }, 2000)
   }
 
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    clearTimeout(timeout.current)
+    onQueryChange(event.target.value)
+    api.start({opacity: 1})
+    timeout.current = window.setTimeout(() => {
+      api.start({opacity: 0})
+    }, 2000)
+  }
+
   return (
     <animated.div
       onMouseMove={onMouseMove}
       className="w-full h-full absolute z-10"
       style={springs}
     >
-      <div className="absolute w-full text-center truncate bottom-4 text-white ">
-        <div className="p-2 bg-black bg-opacity-50">
-          <h1 className="text-4xl">{video.title}</h1>
-          {video.performers.length > 0 && (
-            <p className="text-xl">
-              <HiUser className="inline w-4 h-4 mr-2" />
-              {video.performers.join(", ")}
-            </p>
-          )}
-          {video.studio && (
-            <p className="text-xl">
-              <HiCamera className="inline w-4 h-4 mr-2" />
-              {video.studio}
-            </p>
-          )}
+      {visible && (
+        <>
+          <NavButtons
+            currentSceneIndex={index}
+            goToNextVideo={nextVideo}
+            goToPreviousVideo={previousVideo}
+          />
+        </>
+      )}
+      <input
+        onChange={onChange}
+        placeholder="Search..."
+        className="text-white absolute top-1 w-60 text-center left-1/2 translate -translate-x-1/2 h-12 px-4 leading-6 bg-opacity-0 border-b-2 border-white bg-transparent focus:border-b-2 focus:outline-none"
+      />
+
+      {video && (
+        <div className="absolute w-full text-center truncate bottom-4 text-white ">
+          <div className="p-2 bg-black bg-opacity-50">
+            <h1 className="text-4xl">{video.title}</h1>
+            {video.performers.length > 0 && (
+              <p className="text-xl">
+                <HiUser className="inline w-4 h-4 mr-2" />
+                {video.performers.join(", ")}
+              </p>
+            )}
+            {video.studio && (
+              <p className="text-xl">
+                <HiCamera className="inline w-4 h-4 mr-2" />
+                {video.studio}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </animated.div>
   )
 }
 
-function VideoCarousel({videos, cropVideo}: Props) {
+function VideoCarousel({videos, cropVideo, onQueryChange, loading}: Props) {
+  console.log(videos)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [direction, setDirection] = useState(1)
 
@@ -126,26 +173,30 @@ function VideoCarousel({videos, cropVideo}: Props) {
 
   return (
     <div {...bind()} className="relative w-full h-full touch-none">
-      {transitions((style, index) => (
-        <animated.video
-          src={videos[index].url}
-          playsInline
-          autoPlay
-          muted
-          loop
-          className="absolute w-full h-full"
-          style={{
-            ...style,
-            objectFit: cropVideo ? "cover" : undefined,
-          }}
-        />
-      ))}
-      <NavButtons
-        currentSceneIndex={currentVideoIndex}
-        goToNextVideo={nextVideo}
-        goToPreviousVideo={previousVideo}
+      {!loading &&
+        videos.length > 0 &&
+        transitions((style, index) => (
+          <animated.video
+            src={videos[index]?.url}
+            playsInline
+            autoPlay
+            muted
+            loop
+            className="absolute w-full h-full"
+            style={{
+              ...style,
+              objectFit: cropVideo ? "cover" : undefined,
+            }}
+          />
+        ))}
+
+      <Overlay
+        video={videos[currentVideoIndex]}
+        nextVideo={nextVideo}
+        previousVideo={previousVideo}
+        index={currentVideoIndex}
+        onQueryChange={onQueryChange}
       />
-      <Overlay video={videos[currentVideoIndex]} />
     </div>
   )
 }

@@ -21,7 +21,8 @@
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.4.0",
     "react-icons": "^4.10.1",
-    "react-router-dom": "^6.14.1"
+    "react-router-dom": "^6.14.1",
+    "ts-debounce": "^4.0.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^4.0.1",

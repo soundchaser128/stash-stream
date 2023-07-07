@@ -8,8 +8,10 @@ import {useMemo} from "react"
 
 const GET_SCENES = gql(`
 query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String, $page: Int) {
-  findScenes(filter: {sort: $sort, direction: $direction, q: $query, page: $page}) {
-  	scenes {
+  findScenes(
+    filter: {sort: $sort, direction: $direction, q: $query, page: $page}
+  ) {
+    scenes {
       id
       date
       performers {
@@ -21,6 +23,7 @@ query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String, $p
       title
       files {
         basename
+        duration
       }
     }
   }
@@ -35,10 +38,11 @@ function App() {
   const {data, loading} = useQuery(GET_SCENES, {
     variables: {
       query,
-      sort: "date",
+      // sort: "date",
       direction: SortDirectionEnum.Desc,
-      // sort: `random_${randomPart}`,
+      sort: `random_${randomPart}`,
       page: 1,
+      maxDuration: Number.MAX_SAFE_INTEGER,
     },
   })
 

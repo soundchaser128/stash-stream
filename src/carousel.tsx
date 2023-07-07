@@ -56,12 +56,7 @@ interface OverlayProps {
   nextVideo: () => void
   previousVideo: () => void
   onCropVideo: () => void
-}
-
-interface Props {
-  videos: Video[]
-  cropVideo?: boolean
-  loading?: boolean
+  onQueryChange: (query: string) => void
 }
 
 function Overlay({
@@ -70,6 +65,7 @@ function Overlay({
   nextVideo,
   previousVideo,
   onCropVideo,
+  onQueryChange,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
@@ -95,6 +91,7 @@ function Overlay({
   }
 
   const setQueryInUrl = (query: string) => {
+    onQueryChange(query)
     navigate({
       search: `?q=${encodeURIComponent(query)}`,
     })
@@ -104,7 +101,7 @@ function Overlay({
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(timeout.current)
-    // setQuery(event.target.value)
+
     debouncedSetQueryInUrl(event.target.value)
 
     api.start({opacity: 1})
@@ -167,6 +164,12 @@ function Overlay({
   )
 }
 
+interface Props {
+  videos: Video[]
+  cropVideo?: boolean
+  loading?: boolean
+}
+
 function VideoCarousel({videos, loading}: Props) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [direction, setDirection] = useState(1)
@@ -204,13 +207,17 @@ function VideoCarousel({videos, loading}: Props) {
   useHotkeys(["w", "up"], previousVideo, [currentVideoIndex, length])
   useHotkeys(["s", "down"], nextVideo, [currentVideoIndex, length])
 
+  const onQueryChange = () => {
+    setCurrentVideoIndex(0)
+  }
+
   return (
     <div {...bind()} className="relative w-full h-full touch-none">
       {!loading &&
         videos.length > 0 &&
         transitions((style, index) => (
           <animated.video
-            src={videos[index].url}
+            src={videos[index]?.url}
             playsInline
             autoPlay
             muted
@@ -229,6 +236,7 @@ function VideoCarousel({videos, loading}: Props) {
         previousVideo={previousVideo}
         index={currentVideoIndex}
         onCropVideo={() => setCropVideo((prev) => !prev)}
+        onQueryChange={onQueryChange}
       />
     </div>
   )

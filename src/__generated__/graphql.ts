@@ -3999,10 +3999,7 @@ export type VideoFile = BaseFile & {
 export type VisualFile = ImageFile | VideoFile
 
 export type GetScenesQueryVariables = Exact<{
-  sort?: InputMaybe<Scalars["String"]["input"]>
-  direction?: InputMaybe<SortDirectionEnum>
-  query?: InputMaybe<Scalars["String"]["input"]>
-  page?: InputMaybe<Scalars["Int"]["input"]>
+  filter?: InputMaybe<FindFilterType>
 }>
 
 export type GetScenesQuery = {
@@ -4035,29 +4032,11 @@ export const GetScenesDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
-          variable: {kind: "Variable", name: {kind: "Name", value: "sort"}},
-          type: {kind: "NamedType", name: {kind: "Name", value: "String"}},
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: {kind: "Name", value: "direction"},
-          },
+          variable: {kind: "Variable", name: {kind: "Name", value: "filter"}},
           type: {
             kind: "NamedType",
-            name: {kind: "Name", value: "SortDirectionEnum"},
+            name: {kind: "Name", value: "FindFilterType"},
           },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {kind: "Variable", name: {kind: "Name", value: "query"}},
-          type: {kind: "NamedType", name: {kind: "Name", value: "String"}},
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {kind: "Variable", name: {kind: "Name", value: "page"}},
-          type: {kind: "NamedType", name: {kind: "Name", value: "Int"}},
         },
       ],
       selectionSet: {
@@ -4071,41 +4050,8 @@ export const GetScenesDocument = {
                 kind: "Argument",
                 name: {kind: "Name", value: "filter"},
                 value: {
-                  kind: "ObjectValue",
-                  fields: [
-                    {
-                      kind: "ObjectField",
-                      name: {kind: "Name", value: "sort"},
-                      value: {
-                        kind: "Variable",
-                        name: {kind: "Name", value: "sort"},
-                      },
-                    },
-                    {
-                      kind: "ObjectField",
-                      name: {kind: "Name", value: "direction"},
-                      value: {
-                        kind: "Variable",
-                        name: {kind: "Name", value: "direction"},
-                      },
-                    },
-                    {
-                      kind: "ObjectField",
-                      name: {kind: "Name", value: "q"},
-                      value: {
-                        kind: "Variable",
-                        name: {kind: "Name", value: "query"},
-                      },
-                    },
-                    {
-                      kind: "ObjectField",
-                      name: {kind: "Name", value: "page"},
-                      value: {
-                        kind: "Variable",
-                        name: {kind: "Name", value: "page"},
-                      },
-                    },
-                  ],
+                  kind: "Variable",
+                  name: {kind: "Name", value: "filter"},
                 },
               },
             ],

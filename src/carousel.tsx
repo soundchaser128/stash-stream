@@ -1,4 +1,4 @@
-import {useRef, useState} from "react"
+import {useEffect, useRef, useState} from "react"
 import {useTransition, animated, useSpring} from "@react-spring/web"
 import {
   HiCalendar,
@@ -25,25 +25,31 @@ const buttonStyles =
   "rounded-full p-3 bg-purple-400 bg-opacity-50 text-white disabled:opacity-25"
 
 function NavButtons({
-  currentSceneIndex,
+  index,
   goToPreviousVideo,
   goToNextVideo,
+  hasMore,
 }: {
-  currentSceneIndex: number
+  index: number
   goToPreviousVideo: (position?: number) => void
   goToNextVideo: (position?: number) => void
+  hasMore?: boolean
 }) {
   return (
     <div className="absolute flex flex-col gap-6 right-4 top-1/2 -translate-y-1/2 z-20">
       <button
         className={buttonStyles}
-        disabled={currentSceneIndex === 0}
+        disabled={index === 0}
         onClick={() => goToPreviousVideo(0)}
       >
         <HiChevronUp className="w-8 h-8" />
       </button>
 
-      <button className={buttonStyles} onClick={() => goToNextVideo(0)}>
+      <button
+        disabled={!hasMore}
+        className={buttonStyles}
+        onClick={() => goToNextVideo(0)}
+      >
         <HiChevronDown className="w-8 h-8" />
       </button>
     </div>
@@ -57,6 +63,7 @@ interface OverlayProps {
   previousVideo: () => void
   onCropVideo: () => void
   onQueryChange: (query: string) => void
+  hasMore?: boolean
 }
 
 function Overlay({
@@ -66,6 +73,7 @@ function Overlay({
   previousVideo,
   onCropVideo,
   onQueryChange,
+  hasMore,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
@@ -83,12 +91,12 @@ function Overlay({
   const timeout = useRef<number>()
 
   const onMouseMove = () => {
-    clearTimeout(timeout.current)
-    api.start({opacity: 1})
-    timeout.current = window.setTimeout(() => {
-      api.start({opacity: 0})
-    }, overlayTimeout)
+    showOverlay()
   }
+
+  useEffect(() => {
+    showOverlay()
+  }, [])
 
   const setQueryInUrl = (query: string) => {
     onQueryChange(query)
@@ -100,10 +108,16 @@ function Overlay({
   const debouncedSetQueryInUrl = debounce(setQueryInUrl, 500)
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    clearTimeout(timeout.current)
-
+    showOverlay()
     debouncedSetQueryInUrl(event.target.value)
+  }
 
+  const onKeyDown = () => {
+    showOverlay()
+  }
+
+  const showOverlay = () => {
+    clearTimeout(timeout.current)
     api.start({opacity: 1})
     timeout.current = window.setTimeout(() => {
       api.start({opacity: 0})
@@ -113,13 +127,15 @@ function Overlay({
   return (
     <animated.div
       onMouseMove={onMouseMove}
+      onKeyDown={onKeyDown}
       className="w-full h-full absolute z-10"
       style={springs}
     >
       {visible && (
         <>
           <NavButtons
-            currentSceneIndex={index}
+            index={index}
+            hasMore={hasMore}
             goToNextVideo={nextVideo}
             goToPreviousVideo={previousVideo}
           />
@@ -170,9 +186,18 @@ interface Props {
   loading?: boolean
   initialIndex?: number
   onVideoChange?: (index: number) => void
+  onNextPage: () => Promise<void>
+  onPreviousPage: () => Promise<void>
 }
 
-function VideoCarousel({videos, loading, initialIndex, onVideoChange}: Props) {
+function VideoCarousel({
+  videos,
+  loading,
+  initialIndex,
+  onVideoChange,
+  onNextPage,
+  onPreviousPage,
+}: Props) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(initialIndex || 0)
   const [direction, setDirection] = useState(1)
   const [cropVideo, setCropVideo] = useState(false)
@@ -192,14 +217,18 @@ function VideoCarousel({videos, loading, initialIndex, onVideoChange}: Props) {
     }
   })
 
-  const nextVideo = () => {
-    if (videos.length === 0) { 
+  const nextVideo = async () => {
+    if (videos.length === 0) {
       return
     }
-    const prevIndex = currentVideoIndex
-    // const nextIndex = 
-    setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videos.length)
+    let nextIndex = currentVideoIndex + 1
+    if (nextIndex === videos.length - 1) {
+      await onNextPage()
+      nextIndex = 0
+    }
+    setCurrentVideoIndex(nextIndex)
     setDirection(1)
+    onVideoChange && onVideoChange(nextIndex)
   }
 
   const previousVideo = () => {
@@ -207,10 +236,13 @@ function VideoCarousel({videos, loading, initialIndex, onVideoChange}: Props) {
       return
     }
     const prevIndex = currentVideoIndex
-    const nextIndex = Math.max(0, (prevIndex - 1 + videos.length) % videos.length)
+    const nextIndex = Math.max(
+      0,
+      (prevIndex - 1 + videos.length) % videos.length
+    )
     setCurrentVideoIndex(nextIndex)
     setDirection(-1)
-    onVideoChange?.(nextIndex)
+    onVideoChange && onVideoChange(nextIndex)
   }
 
   useHotkeys(["w", "up"], previousVideo, [currentVideoIndex, length])
@@ -246,6 +278,7 @@ function VideoCarousel({videos, loading, initialIndex, onVideoChange}: Props) {
         index={currentVideoIndex}
         onCropVideo={() => setCropVideo((prev) => !prev)}
         onQueryChange={onQueryChange}
+        hasMore={videos.length > 1 && currentVideoIndex < videos.length - 1}
       />
     </div>
   )

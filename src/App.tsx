@@ -1,15 +1,15 @@
 import {useQuery} from "@apollo/client"
 import {gql} from "./__generated__"
 import {addApiKey, stashUrl} from "./util"
-import {useSearchParams} from "react-router-dom"
+import {useNavigate, useSearchParams} from "react-router-dom"
 import VideoCarousel from "./carousel"
 import {SortDirectionEnum} from "./__generated__/graphql"
 import {useMemo} from "react"
 
 const GET_SCENES = gql(`
-query GetScenes($sort: String, $direction: SortDirectionEnum, $query: String, $page: Int) {
+query GetScenes($filter: FindFilterType) {
   findScenes(
-    filter: {sort: $sort, direction: $direction, q: $query, page: $page}
+    filter: $filter
   ) {
     scenes {
       id
@@ -36,15 +36,17 @@ function App() {
   const query = searchParams.get("q") || ""
   const index = Number(searchParams.get("index")) || 0
   const page = Number(searchParams.get("page")) || 1
+  const navigate = useNavigate()
 
-  const {data, loading} = useQuery(GET_SCENES, {
+  const {data, loading, fetchMore} = useQuery(GET_SCENES, {
     variables: {
-      query,
-      // sort: "date",
-      direction: SortDirectionEnum.Desc,
-      sort: `random_${randomPart}`,
-      page,
-      maxDuration: Number.MAX_SAFE_INTEGER,
+      filter: {
+        q: query,
+        sort: "date",
+        direction: SortDirectionEnum.Desc,
+        page: page,
+        per_page: 10,
+      },
     },
   })
 
@@ -59,10 +61,36 @@ function App() {
     })
   }, [data])
 
+  const onVideoChange = async (index: number) => {
+    searchParams.set("index", index.toString())
+
+    navigate({
+      search: `?${searchParams.toString()}`,
+    })
+  }
+
+  const onNextPage = async () => {
+    console.log("onNextPage")
+    fetchMore({
+      variables: {
+        page: page + 1,
+      },
+    })
+  }
+
+  const onPreviousPage = async () => {}
+
   return (
     <main className="h-screen w-screen bg-black">
       <div className="relative h-full w-full">
-        <VideoCarousel loading={loading} videos={videos || []} initalIndex={index} />
+        <VideoCarousel
+          loading={loading}
+          videos={videos || []}
+          initialIndex={index}
+          onVideoChange={onVideoChange}
+          onNextPage={onNextPage}
+          onPreviousPage={onPreviousPage}
+        />
       </div>
     </main>
   )

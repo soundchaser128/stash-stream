@@ -34,6 +34,8 @@ const randomPart = Math.floor(Math.random() * 10 ** 8)
 function App() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get("q") || ""
+  const index = Number(searchParams.get("index")) || 0
+  const page = Number(searchParams.get("page")) || 1
 
   const {data, loading} = useQuery(GET_SCENES, {
     variables: {
@@ -41,7 +43,7 @@ function App() {
       // sort: "date",
       direction: SortDirectionEnum.Desc,
       sort: `random_${randomPart}`,
-      page: 1,
+      page,
       maxDuration: Number.MAX_SAFE_INTEGER,
     },
   })
@@ -60,7 +62,7 @@ function App() {
   return (
     <main className="h-screen w-screen bg-black">
       <div className="relative h-full w-full">
-        <VideoCarousel loading={loading} videos={videos || []} />
+        <VideoCarousel loading={loading} videos={videos || []} initalIndex={index} />
       </div>
     </main>
   )

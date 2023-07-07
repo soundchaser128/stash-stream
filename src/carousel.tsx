@@ -132,22 +132,22 @@ function Overlay({
       />
 
       {video && (
-        <section className="absolute left-1/2 rounded-xl shadow-lg -translate-x-1/2 text-center truncate bottom-4 text-white bg-purple-400 bg-opacity-50 p-2">
-          <h1 className="text-xl lg:text-4xl">{video.title}</h1>
+        <section className="absolute left-1/2 -translate-x-1/2 text-center truncate bottom-4 text-white p-2">
+          <h1 className="text-xl lg:text-2xl">{video.title}</h1>
           {video.performers.length > 0 && (
-            <p className="text-lg lg:text-xl">
+            <p className="text-lg">
               <HiUser className="inline w-4 h-4 mr-2" />
               {video.performers.join(", ")}
             </p>
           )}
           {video.studio && (
-            <p className="text-lg lg:text-xl">
+            <p className="text-lg">
               <HiCamera className="inline w-4 h-4 mr-2" />
               {video.studio}
             </p>
           )}
           {video.date && (
-            <p className="text-lg lg:text-xl">
+            <p className="text-lg">
               <HiCalendar className="inline w-4 h-4 mr-2" />
               {video.date}
             </p>
@@ -168,10 +168,12 @@ interface Props {
   videos: Video[]
   cropVideo?: boolean
   loading?: boolean
+  initialIndex?: number
+  onVideoChange?: (index: number) => void
 }
 
-function VideoCarousel({videos, loading}: Props) {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
+function VideoCarousel({videos, loading, initialIndex, onVideoChange}: Props) {
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(initialIndex || 0)
   const [direction, setDirection] = useState(1)
   const [cropVideo, setCropVideo] = useState(false)
 
@@ -191,17 +193,24 @@ function VideoCarousel({videos, loading}: Props) {
   })
 
   const nextVideo = () => {
-    if (videos.length === 0) return
+    if (videos.length === 0) { 
+      return
+    }
+    const prevIndex = currentVideoIndex
+    // const nextIndex = 
     setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videos.length)
     setDirection(1)
   }
 
   const previousVideo = () => {
-    if (videos.length === 0) return
-    setCurrentVideoIndex((prevIndex) =>
-      Math.max(0, (prevIndex - 1 + videos.length) % videos.length)
-    )
+    if (videos.length === 0) {
+      return
+    }
+    const prevIndex = currentVideoIndex
+    const nextIndex = Math.max(0, (prevIndex - 1 + videos.length) % videos.length)
+    setCurrentVideoIndex(nextIndex)
     setDirection(-1)
+    onVideoChange?.(nextIndex)
   }
 
   useHotkeys(["w", "up"], previousVideo, [currentVideoIndex, length])

@@ -4000,6 +4000,7 @@ export type VisualFile = ImageFile | VideoFile
 
 export type GetScenesQueryVariables = Exact<{
   filter?: InputMaybe<FindFilterType>
+  sceneFilter?: InputMaybe<SceneFilterType>
 }>
 
 export type GetScenesQuery = {
@@ -4038,6 +4039,17 @@ export const GetScenesDocument = {
             name: {kind: "Name", value: "FindFilterType"},
           },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: {kind: "Name", value: "sceneFilter"},
+          },
+          type: {
+            kind: "NamedType",
+            name: {kind: "Name", value: "SceneFilterType"},
+          },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -4052,6 +4064,14 @@ export const GetScenesDocument = {
                 value: {
                   kind: "Variable",
                   name: {kind: "Name", value: "filter"},
+                },
+              },
+              {
+                kind: "Argument",
+                name: {kind: "Name", value: "scene_filter"},
+                value: {
+                  kind: "Variable",
+                  name: {kind: "Name", value: "sceneFilter"},
                 },
               },
             ],

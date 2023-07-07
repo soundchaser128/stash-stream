@@ -3,13 +3,14 @@ import {gql} from "./__generated__"
 import {addApiKey, stashUrl} from "./util"
 import {useNavigate, useSearchParams} from "react-router-dom"
 import VideoCarousel from "./carousel"
-import {SortDirectionEnum} from "./__generated__/graphql"
+import {CriterionModifier, SortDirectionEnum} from "./__generated__/graphql"
 import {useMemo} from "react"
 
 const GET_SCENES = gql(`
-query GetScenes($filter: FindFilterType) {
+query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
   findScenes(
-    filter: $filter
+    filter: $filter,
+    scene_filter: $sceneFilter
   ) {
     scenes {
       id
@@ -46,6 +47,12 @@ function App() {
         direction: SortDirectionEnum.Desc,
         page: page,
         per_page: 10,
+      },
+      sceneFilter: {
+        duration: {
+          value: 60,
+          modifier: CriterionModifier.LessThan,
+        },
       },
     },
   })

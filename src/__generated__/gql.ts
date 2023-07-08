@@ -15,6 +15,8 @@ import {TypedDocumentNode as DocumentNode} from "@graphql-typed-document-node/co
 const documents = {
   "\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n    }\n  }\n}":
     types.GetScenesDocument,
+  "\nquery GetTags($filter: FindFilterType) {\n  findTags(filter: $filter) {\n    count\n    tags {\n      id\n      name\n      scene_count\n      image_count\n      scene_marker_count\n      performer_count\n    }\n  }\n}\n":
+    types.GetTagsDocument,
 }
 
 /**
@@ -37,6 +39,12 @@ export function gql(source: string): unknown
 export function gql(
   source: "\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n    }\n  }\n}"
 ): (typeof documents)["\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n    }\n  }\n}"]
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(
+  source: "\nquery GetTags($filter: FindFilterType) {\n  findTags(filter: $filter) {\n    count\n    tags {\n      id\n      name\n      scene_count\n      image_count\n      scene_marker_count\n      performer_count\n    }\n  }\n}\n"
+): (typeof documents)["\nquery GetTags($filter: FindFilterType) {\n  findTags(filter: $filter) {\n    count\n    tags {\n      id\n      name\n      scene_count\n      image_count\n      scene_marker_count\n      performer_count\n    }\n  }\n}\n"]
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {}

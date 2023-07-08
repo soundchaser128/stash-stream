@@ -86,15 +86,17 @@ function App() {
   return (
     <main className="h-screen w-screen bg-black">
       <div className="relative h-full w-full">
-        <VideoCarousel
-          loading={loading}
-          videos={videos || []}
-          initialIndex={index}
-          onVideoChange={onVideoChange}
-          onNextPage={onNextPage}
-          onPreviousPage={onPreviousPage}
-          page={page}
-        />
+        {videos && (
+          <VideoCarousel
+            loading={loading}
+            videos={videos}
+            initialIndex={index}
+            onVideoChange={onVideoChange}
+            onNextPage={onNextPage}
+            onPreviousPage={onPreviousPage}
+            page={page}
+          />
+        )}
       </div>
     </main>
   )

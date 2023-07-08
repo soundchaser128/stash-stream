@@ -112,10 +112,6 @@ function Overlay({
     debouncedSetQueryInUrl(event.target.value)
   }
 
-  const onKeyDown = () => {
-    showOverlay()
-  }
-
   const showOverlay = () => {
     clearTimeout(timeout.current)
     api.start({opacity: 1})
@@ -127,7 +123,6 @@ function Overlay({
   return (
     <animated.div
       onMouseMove={onMouseMove}
-      onKeyDown={onKeyDown}
       className="w-full h-full absolute z-10"
       style={springs}
     >
@@ -222,6 +217,7 @@ function VideoCarousel({
       return
     }
     let nextIndex = currentVideoIndex + 1
+    console.log({nextIndex})
     if (nextIndex === videos.length - 1) {
       await onNextPage()
       nextIndex = 0

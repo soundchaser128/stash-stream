@@ -39,7 +39,7 @@ function App() {
   const page = Number(searchParams.get("page")) || 1
   const navigate = useNavigate()
 
-  const {data, loading, fetchMore} = useQuery(GET_SCENES, {
+  const {data, loading} = useQuery(GET_SCENES, {
     variables: {
       filter: {
         q: query,
@@ -49,10 +49,10 @@ function App() {
         per_page: 10,
       },
       sceneFilter: {
-        duration: {
-          value: 60,
-          modifier: CriterionModifier.LessThan,
-        },
+        // duration: {
+        //   value: 60,
+        //   modifier: CriterionModifier.LessThan,
+        // },
       },
     },
   })
@@ -77,15 +77,20 @@ function App() {
   }
 
   const onNextPage = async () => {
-    console.log("onNextPage")
-    fetchMore({
-      variables: {
-        page: page + 1,
-      },
+    searchParams.set("page", (page + 1).toString())
+    navigate({
+      search: `?${searchParams.toString()}`,
     })
+    // fetchMore({
+    //   variables: {
+    //     page: page + 1,
+    //   },
+    // })
   }
 
-  const onPreviousPage = async () => {}
+  const onPreviousPage = async () => {
+    //
+  }
 
   return (
     <main className="h-screen w-screen bg-black">

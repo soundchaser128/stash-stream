@@ -1,9 +1,9 @@
 import {useQuery} from "@apollo/client"
-import {gql} from "./__generated__"
-import {addApiKey, stashUrl} from "./util"
+import {gql} from "../__generated__"
+import {addApiKey, stashUrl} from "../util"
 import {useNavigate, useSearchParams} from "react-router-dom"
-import VideoCarousel from "./carousel"
-import {SortDirectionEnum} from "./__generated__/graphql"
+import VideoCarousel from "../components/VideoCarousel"
+import {SortDirectionEnum} from "../__generated__/graphql"
 import {useMemo} from "react"
 
 const GET_SCENES = gql(`
@@ -33,7 +33,9 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
 
 const randomPart = Math.floor(Math.random() * 10 ** 8)
 
-function App() {
+export const PER_PAGE = 20
+
+function VideosPage() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get("q") || ""
   const index = Number(searchParams.get("index")) || 0
@@ -47,11 +49,15 @@ function App() {
         sort: "date",
         direction: SortDirectionEnum.Desc,
         page: page,
-        per_page: 20,
+        per_page: PER_PAGE,
       },
       sceneFilter: {},
     },
   })
+
+  const totalPages = data?.findScenes.count
+    ? Math.ceil(data.findScenes.count / PER_PAGE)
+    : 0
 
   const videos = useMemo(() => {
     return data?.findScenes.scenes.map((video) => {
@@ -80,13 +86,16 @@ function App() {
   }
 
   const onPreviousPage = async () => {
-    //
+    searchParams.set("page", (page - 1).toString())
+    navigate({
+      search: `?${searchParams.toString()}`,
+    })
   }
 
   return (
     <main className="h-screen w-screen bg-black">
       <div className="relative h-full w-full">
-        {videos && (
+        {videos && videos.length > 0 && (
           <VideoCarousel
             loading={loading}
             videos={videos}
@@ -95,6 +104,7 @@ function App() {
             onNextPage={onNextPage}
             onPreviousPage={onPreviousPage}
             page={page}
+            totalPages={totalPages}
           />
         )}
       </div>
@@ -102,4 +112,4 @@ function App() {
   )
 }
 
-export default App
+export default VideosPage

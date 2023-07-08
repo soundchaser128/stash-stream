@@ -1,6 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
-import App from "./App.tsx"
+import Carousel from "./routes/carousel.tsx"
 import "./main.css"
 import {
   ApolloClient,
@@ -11,6 +11,7 @@ import {
 import {setContext} from "@apollo/client/link/context"
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import {apiKey, stashUrl} from "./util.ts"
+import Index from "./routes/index.tsx"
 
 const httpLink = createHttpLink({
   uri: `${stashUrl}/graphql`,
@@ -33,7 +34,12 @@ const client = new ApolloClient({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Index />,
+  },
+  {
+    path: "/carousel/:id",
+    element: <Carousel />,
+    children: [],
   },
 ])
 

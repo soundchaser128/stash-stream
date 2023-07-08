@@ -12,6 +12,7 @@ import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
 import {useNavigate} from "react-router-dom"
 import debounce from "lodash.debounce"
+import {PER_PAGE} from "../routes/carousel"
 
 interface Video {
   url: string
@@ -25,30 +26,30 @@ const buttonStyles =
   "rounded-full p-3 bg-purple-400 bg-opacity-50 text-white disabled:opacity-25"
 
 function NavButtons({
-  index,
   goToPreviousVideo,
   goToNextVideo,
-  hasMore,
+  hasNextPage,
+  hasPreviousPage,
 }: {
-  index: number
-  goToPreviousVideo: (position?: number) => void
-  goToNextVideo: (position?: number) => void
-  hasMore?: boolean
+  goToPreviousVideo: () => void
+  goToNextVideo: () => void
+  hasNextPage: boolean
+  hasPreviousPage: boolean
 }) {
   return (
     <div className="absolute flex flex-col gap-6 right-4 top-1/2 -translate-y-1/2 z-20">
       <button
         className={buttonStyles}
-        disabled={index === 0}
-        onClick={() => goToPreviousVideo(0)}
+        disabled={!hasPreviousPage}
+        onClick={() => goToPreviousVideo()}
       >
         <HiChevronUp className="w-8 h-8" />
       </button>
 
       <button
-        disabled={!hasMore}
         className={buttonStyles}
-        onClick={() => goToNextVideo(0)}
+        disabled={!hasNextPage}
+        onClick={() => goToNextVideo()}
       >
         <HiChevronDown className="w-8 h-8" />
       </button>
@@ -58,22 +59,22 @@ function NavButtons({
 
 interface OverlayProps {
   video?: Video
-  index: number
   nextVideo: () => void
   previousVideo: () => void
   onCropVideo: () => void
   onQueryChange: (query: string) => void
-  hasMore?: boolean
+  hasNextPage: boolean
+  hasPreviousPage: boolean
 }
 
 function Overlay({
   video,
-  index,
   nextVideo,
   previousVideo,
   onCropVideo,
   onQueryChange,
-  hasMore,
+  hasNextPage,
+  hasPreviousPage,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
@@ -129,10 +130,10 @@ function Overlay({
       {visible && (
         <>
           <NavButtons
-            index={index}
-            hasMore={hasMore}
             goToNextVideo={nextVideo}
             goToPreviousVideo={previousVideo}
+            hasNextPage={hasNextPage}
+            hasPreviousPage={hasPreviousPage}
           />
         </>
       )}
@@ -184,6 +185,7 @@ interface Props {
   onNextPage: () => Promise<void>
   onPreviousPage: () => Promise<void>
   page: number
+  totalPages: number
 }
 
 function VideoCarousel({
@@ -194,6 +196,7 @@ function VideoCarousel({
   onNextPage,
   onPreviousPage,
   page,
+  totalPages,
 }: Props) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(initialIndex || 0)
   const [direction, setDirection] = useState(1)
@@ -215,9 +218,6 @@ function VideoCarousel({
   })
 
   const nextVideo = async () => {
-    if (videos.length === 0) {
-      return
-    }
     let nextIndex = currentVideoIndex + 1
     if (nextIndex === videos.length - 1) {
       await onNextPage()
@@ -228,15 +228,14 @@ function VideoCarousel({
     onVideoChange && onVideoChange(nextIndex)
   }
 
-  const previousVideo = () => {
-    if (videos.length === 0) {
-      return
+  const previousVideo = async () => {
+    let nextIndex = currentVideoIndex - 1
+
+    if (nextIndex < 0) {
+      await onPreviousPage()
+      nextIndex = PER_PAGE - 1
     }
-    const prevIndex = currentVideoIndex
-    const nextIndex = Math.max(
-      0,
-      (prevIndex - 1 + videos.length) % videos.length
-    )
+
     setCurrentVideoIndex(nextIndex)
     setDirection(-1)
     onVideoChange && onVideoChange(nextIndex)
@@ -248,6 +247,9 @@ function VideoCarousel({
   const onQueryChange = () => {
     setCurrentVideoIndex(0)
   }
+
+  const hasNextPage = page < totalPages - 1
+  const hasPreviousPage = page > 0
 
   return (
     <div {...bind()} className="relative w-full h-full touch-none">
@@ -272,10 +274,10 @@ function VideoCarousel({
         video={videos[currentVideoIndex]}
         nextVideo={nextVideo}
         previousVideo={previousVideo}
-        index={currentVideoIndex}
         onCropVideo={() => setCropVideo((prev) => !prev)}
         onQueryChange={onQueryChange}
-        hasMore={videos.length > 1 && currentVideoIndex < videos.length - 1}
+        hasNextPage={hasNextPage}
+        hasPreviousPage={hasPreviousPage}
       />
     </div>
   )

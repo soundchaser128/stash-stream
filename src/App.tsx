@@ -3,7 +3,7 @@ import {gql} from "./__generated__"
 import {addApiKey, stashUrl} from "./util"
 import {useNavigate, useSearchParams} from "react-router-dom"
 import VideoCarousel from "./carousel"
-import {CriterionModifier, SortDirectionEnum} from "./__generated__/graphql"
+import {SortDirectionEnum} from "./__generated__/graphql"
 import {useMemo} from "react"
 
 const GET_SCENES = gql(`
@@ -12,6 +12,7 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
     filter: $filter,
     scene_filter: $sceneFilter
   ) {
+    count
     scenes {
       id
       date
@@ -46,14 +47,9 @@ function App() {
         sort: "date",
         direction: SortDirectionEnum.Desc,
         page: page,
-        per_page: 10,
+        per_page: 20,
       },
-      sceneFilter: {
-        // duration: {
-        //   value: 60,
-        //   modifier: CriterionModifier.LessThan,
-        // },
-      },
+      sceneFilter: {},
     },
   })
 
@@ -81,11 +77,6 @@ function App() {
     navigate({
       search: `?${searchParams.toString()}`,
     })
-    // fetchMore({
-    //   variables: {
-    //     page: page + 1,
-    //   },
-    // })
   }
 
   const onPreviousPage = async () => {
@@ -102,6 +93,7 @@ function App() {
           onVideoChange={onVideoChange}
           onNextPage={onNextPage}
           onPreviousPage={onPreviousPage}
+          page={page}
         />
       </div>
     </main>

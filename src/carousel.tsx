@@ -183,6 +183,7 @@ interface Props {
   onVideoChange?: (index: number) => void
   onNextPage: () => Promise<void>
   onPreviousPage: () => Promise<void>
+  page: number
 }
 
 function VideoCarousel({
@@ -192,6 +193,7 @@ function VideoCarousel({
   onVideoChange,
   onNextPage,
   onPreviousPage,
+  page,
 }: Props) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(initialIndex || 0)
   const [direction, setDirection] = useState(1)
@@ -217,7 +219,6 @@ function VideoCarousel({
       return
     }
     let nextIndex = currentVideoIndex + 1
-    console.log({nextIndex})
     if (nextIndex === videos.length - 1) {
       await onNextPage()
       nextIndex = 0

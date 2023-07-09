@@ -244,14 +244,16 @@ const listItemStyles = "flex gap-2 items-center"
 function Sidebar({
   item,
   totalResults,
+  index,
 }: {
   item?: CarouselItem
   totalResults: number
+  index: number
 }) {
   return (
     <section className="hidden lg:flex flex-col bg-purple-50 p-4 w-1/4 overflow-y-scroll overflow-x-hidden text-lg">
       {item && (
-        <>
+        <div className="h-full flex flex-col justify-between">
           <ul className="flex flex-col gap-2">
             <li className={listItemStyles}>
               <strong>{item.title}</strong>
@@ -306,7 +308,10 @@ function Sidebar({
               </li>
             )}
           </ul>
-        </>
+          <p className="w-full text-center text-sm">
+            {index + 1} / {totalResults}
+          </p>
+        </div>
       )}
     </section>
   )
@@ -426,7 +431,7 @@ function Carousel({
         )}
       </div>
 
-      <Sidebar item={items[index]} totalResults={totalResults} />
+      <Sidebar item={items[index]} totalResults={totalResults} index={index} />
     </div>
   )
 }

@@ -62,7 +62,7 @@ query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
 }`)
 
 // const randomPart = Math.floor(Math.random() * 10 ** 8)
-const SORT = "rating"
+const SORT = "created_at"
 
 export const PER_PAGE = 20
 

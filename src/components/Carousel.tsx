@@ -13,6 +13,7 @@ import {useDrag} from "@use-gesture/react"
 import {useNavigate} from "react-router-dom"
 import debounce from "lodash.debounce"
 import {PER_PAGE} from "../routes/carousel"
+import clsx from "clsx"
 
 export type ItemType = "video" | "image"
 
@@ -196,18 +197,19 @@ function MediaItem({
         autoPlay
         muted
         loop
-        className="absolute w-full h-full"
-        style={{
-          ...style,
-          objectFit: cropVideo ? "cover" : undefined,
-        }}
+        className={clsx("absolute w-full h-full", cropVideo && "object-cover")}
+        style={style}
       />
     )
   } else {
     return (
       <animated.img
         src={item.url}
-        className="absolute max-h-full w-full object-contain"
+        className={clsx(
+          "absolute w-full h-full",
+          !cropVideo && "object-contain",
+          cropVideo && "object-cover"
+        )}
         style={style}
       />
     )
@@ -287,8 +289,7 @@ function Carousel({
   }
 
   const hasNextPage = page < totalPages - 1
-  const hasPreviousPage = page > 0
-
+  const hasPreviousPage = index !== 0 || page > 1
   return (
     <div {...bind()} className="relative w-full h-full touch-none">
       {!loading &&

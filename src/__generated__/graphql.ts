@@ -4026,6 +4026,7 @@ export type GetScenesQuery = {
 
 export type GetImagesQueryVariables = Exact<{
   filter?: InputMaybe<FindFilterType>
+  imageFilter?: InputMaybe<ImageFilterType>
 }>
 
 export type GetImagesQuery = {
@@ -4201,6 +4202,17 @@ export const GetImagesDocument = {
             name: {kind: "Name", value: "FindFilterType"},
           },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: {kind: "Name", value: "imageFilter"},
+          },
+          type: {
+            kind: "NamedType",
+            name: {kind: "Name", value: "ImageFilterType"},
+          },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -4215,6 +4227,14 @@ export const GetImagesDocument = {
                 value: {
                   kind: "Variable",
                   name: {kind: "Name", value: "filter"},
+                },
+              },
+              {
+                kind: "Argument",
+                name: {kind: "Name", value: "image_filter"},
+                value: {
+                  kind: "Variable",
+                  name: {kind: "Name", value: "imageFilter"},
                 },
               },
             ],

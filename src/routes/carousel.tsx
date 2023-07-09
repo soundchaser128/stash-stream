@@ -32,8 +32,8 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
 }`)
 
 const GET_IMAGES = gql(`
-query GetImages($filter:FindFilterType) {
-  findImages(filter:$filter) {
+query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
+  findImages(filter: $filter, image_filter: $imageFilter) {
     count
     images {
       id
@@ -92,9 +92,15 @@ function useImages(
   const result = useQuery(GET_IMAGES, {
     skip: type !== "image",
     variables: {
+      imageFilter: {
+        tags: {
+          value: tag ? [tag] : undefined,
+          modifier: CriterionModifier.Includes,
+        },
+      },
       filter: {
         q: query,
-        sort: "date",
+        sort: "created_at",
         direction: SortDirectionEnum.Desc,
         page: page,
       },

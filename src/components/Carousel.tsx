@@ -6,6 +6,7 @@ import {
   HiChevronDown,
   HiChevronUp,
   HiOutlineMagnifyingGlassCircle,
+  HiTag,
   HiUser,
 } from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
@@ -24,6 +25,7 @@ export interface CarouselItem {
   performers: string[]
   studio?: string
   date?: string
+  tags: string[]
 }
 
 const buttonStyles =
@@ -216,6 +218,54 @@ function MediaItem({
   }
 }
 
+function Sidebar({item}: {item?: CarouselItem}) {
+  return (
+    <section className="hidden lg:flex flex-col bg-white p-4 w-1/4">
+      {item && (
+        <>
+          {" "}
+          <h1 className="text-3xl truncate font-bold mb-4">{item.title}</h1>
+          <ul className="flex flex-col gap-2">
+            {item.performers.length > 0 && (
+              <li className="text-xl">
+                <HiUser className="inline w-4 h-4 mr-2" />
+                {item.performers.join(", ")}
+              </li>
+            )}
+            {item.studio && (
+              <li className="text-xl">
+                <HiCamera className="inline w-4 h-4 mr-2" />
+                {item.studio}
+              </li>
+            )}
+            {item.date && (
+              <li className="text-xl">
+                <HiCalendar className="inline w-4 h-4 mr-2" />
+                {item.date}
+              </li>
+            )}
+            {item.tags.length > 0 && (
+              <li>
+                <ul className="text-sm flex flex-wrap items-center gap-1">
+                  <HiTag classname="inline w-6 h-6 mr-2" />
+                  {item.tags.map((tag) => (
+                    <li
+                      key={tag}
+                      className="bg-purple-200 rounded-full py-1 px-3"
+                    >
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            )}
+          </ul>
+        </>
+      )}
+    </section>
+  )
+}
+
 interface Props {
   items: CarouselItem[]
   cropVideo?: boolean
@@ -291,22 +341,35 @@ function Carousel({
   const hasNextPage = page < totalPages - 1
   const hasPreviousPage = index !== 0 || page > 1
   return (
-    <div {...bind()} className="relative w-full h-full touch-none">
-      {!loading &&
-        items.length > 0 &&
-        transitions((style, index) => (
-          <MediaItem style={style} item={items[index]} cropVideo={cropVideo} />
-        ))}
+    <div {...bind()} className="w-full h-full flex">
+      <div className="relative touch-none grow">
+        {!loading &&
+          items.length > 0 &&
+          transitions((style, index) => (
+            <MediaItem
+              style={style}
+              item={items[index]}
+              cropVideo={cropVideo}
+            />
+          ))}
+        <Overlay
+          item={items[index]}
+          nextItem={nextVideo}
+          previousItem={previousVideo}
+          onCrop={() => setCropVideo((prev) => !prev)}
+          onQueryChange={onQueryChange}
+          hasNextPage={hasNextPage}
+          hasPreviousPage={hasPreviousPage}
+        />
+        {items?.length === 0 && (
+          <div className="flex flex-col items-center mt-16 justify-center text-white p-4">
+            <h1 className="text-4xl">No results</h1>
+            <p className="text-xl">Try a different search</p>
+          </div>
+        )}
+      </div>
 
-      <Overlay
-        item={items[index]}
-        nextItem={nextVideo}
-        previousItem={previousVideo}
-        onCrop={() => setCropVideo((prev) => !prev)}
-        onQueryChange={onQueryChange}
-        hasNextPage={hasNextPage}
-        hasPreviousPage={hasPreviousPage}
-      />
+      <Sidebar item={items[index]} />
     </div>
   )
 }

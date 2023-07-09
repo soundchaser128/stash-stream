@@ -4020,6 +4020,7 @@ export type GetScenesQuery = {
         basename: string
         duration: number
       }>
+      tags: Array<{__typename?: "Tag"; name: string}>
     }>
   }
 }
@@ -4171,6 +4172,19 @@ export const GetScenesDocument = {
                             {
                               kind: "Field",
                               name: {kind: "Name", value: "duration"},
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: "Field",
+                        name: {kind: "Name", value: "tags"},
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "name"},
                             },
                           ],
                         },

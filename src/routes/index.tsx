@@ -1,7 +1,6 @@
 import {useQuery} from "@apollo/client"
 import {gql} from "../__generated__"
 import {SortDirectionEnum} from "../__generated__/graphql"
-import {HiCamera, HiClock, HiUser, HiVideoCamera} from "react-icons/hi2"
 import {Link} from "react-router-dom"
 
 export const GET_TAGS = gql(`

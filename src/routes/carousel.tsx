@@ -27,6 +27,9 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
         basename
         duration
       }
+      tags {
+        name
+      }
     }
   }
 }`)
@@ -52,7 +55,7 @@ query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
   }
 }`)
 
-const randomPart = Math.floor(Math.random() * 10 ** 8)
+// const randomPart = Math.floor(Math.random() * 10 ** 8)
 
 export const PER_PAGE = 20
 
@@ -160,7 +163,8 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
         const date = video.date || undefined
         const performers = video.performers.map((performer) => performer.name)
         const studio = video.studio?.name || undefined
-        return {url, title, date, performers, studio, type: "video"}
+        const tags = video.tags.map((tag) => tag.name)
+        return {url, title, date, performers, studio, tags, type: "video"}
       })
     case "image":
       return result.data?.findImages.images.map((image) => {
@@ -221,7 +225,7 @@ function VideosPage() {
       )}
 
       <div className="relative h-full w-full">
-        {items && items.length > 0 && (
+        {items && (
           <Carousel
             loading={loading}
             items={items}

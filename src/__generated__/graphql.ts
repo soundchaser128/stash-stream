@@ -4053,27 +4053,6 @@ export type GetImagesQuery = {
   }
 }
 
-export type GetTagsQueryVariables = Exact<{
-  filter?: InputMaybe<FindFilterType>
-}>
-
-export type GetTagsQuery = {
-  __typename?: "Query"
-  findTags: {
-    __typename?: "FindTagsResultType"
-    count: number
-    tags: Array<{
-      __typename?: "Tag"
-      id: string
-      name: string
-      scene_count: number
-      image_count: number
-      scene_marker_count: number
-      performer_count: number
-    }>
-  }
-}
-
 export const GetScenesDocument = {
   kind: "Document",
   definitions: [
@@ -4330,75 +4309,3 @@ export const GetImagesDocument = {
     },
   ],
 } as unknown as DocumentNode<GetImagesQuery, GetImagesQueryVariables>
-export const GetTagsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: {kind: "Name", value: "GetTags"},
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {kind: "Variable", name: {kind: "Name", value: "filter"}},
-          type: {
-            kind: "NamedType",
-            name: {kind: "Name", value: "FindFilterType"},
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: {kind: "Name", value: "findTags"},
-            arguments: [
-              {
-                kind: "Argument",
-                name: {kind: "Name", value: "filter"},
-                value: {
-                  kind: "Variable",
-                  name: {kind: "Name", value: "filter"},
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                {kind: "Field", name: {kind: "Name", value: "count"}},
-                {
-                  kind: "Field",
-                  name: {kind: "Name", value: "tags"},
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {kind: "Field", name: {kind: "Name", value: "id"}},
-                      {kind: "Field", name: {kind: "Name", value: "name"}},
-                      {
-                        kind: "Field",
-                        name: {kind: "Name", value: "scene_count"},
-                      },
-                      {
-                        kind: "Field",
-                        name: {kind: "Name", value: "image_count"},
-                      },
-                      {
-                        kind: "Field",
-                        name: {kind: "Name", value: "scene_marker_count"},
-                      },
-                      {
-                        kind: "Field",
-                        name: {kind: "Name", value: "performer_count"},
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetTagsQuery, GetTagsQueryVariables>

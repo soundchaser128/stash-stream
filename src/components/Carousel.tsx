@@ -14,9 +14,9 @@ import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
 import {Link, useNavigate} from "react-router-dom"
 import debounce from "lodash.debounce"
-import {PER_PAGE} from "../routes/carousel"
 import clsx from "clsx"
 import Rating from "./Rating"
+import {PER_PAGE} from "../util"
 
 function pluralize(word: string, count: number) {
   return count === 1 ? word : `${word}s`
@@ -218,7 +218,6 @@ function MediaItem({
         playsInline
         autoPlay
         muted
-        loop
         className={clsx("absolute w-full h-full", crop && "object-cover")}
         style={style}
         onEnded={goToNext}
@@ -402,8 +401,8 @@ function Carousel({
   }
 
   return (
-    <div {...bind()} className="w-full h-full flex">
-      <div className="relative touch-none grow">
+    <div {...bind()} className="w-full h-full flex touch-none">
+      <div className="relative grow">
         {!loading &&
           items.length > 0 &&
           transitions((style, index) => (
@@ -414,6 +413,7 @@ function Carousel({
               goToNext={nextItem}
             />
           ))}
+
         <Overlay
           item={items[index]}
           nextItem={nextItem}
@@ -423,7 +423,12 @@ function Carousel({
           hasNextItem={hasNextItem}
           hasPreviousItem={hasPreviousItem}
         />
-        {items?.length === 0 && (
+        {loading && (
+          <div className="flex flex-col items-center justify-center w-full h-full ">
+            Loading...
+          </div>
+        )}
+        {items?.length === 0 && !loading && (
           <div className="flex flex-col items-center mt-16 justify-center text-white p-4">
             <h1 className="text-4xl">No results</h1>
             <p className="text-xl">Try a different search</p>

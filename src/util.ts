@@ -10,3 +10,5 @@ export const addApiKey = (url: string) => {
     return url
   }
 }
+
+export const PER_PAGE = 20

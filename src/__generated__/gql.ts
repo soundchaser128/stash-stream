@@ -17,8 +17,6 @@ const documents = {
     types.GetScenesDocument,
   "\nquery GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {\n  findImages(filter: $filter, image_filter: $imageFilter) {\n    count\n    images {\n      id\n      date\n      rating100\n      o_counter\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n\t\t\ttags {\n        name\n      }\n    }\n  }\n}":
     types.GetImagesDocument,
-  "\nquery GetTags($filter: FindFilterType) {\n  findTags(filter: $filter) {\n    count\n    tags {\n      id\n      name\n      scene_count\n      image_count\n      scene_marker_count\n      performer_count\n    }\n  }\n}\n":
-    types.GetTagsDocument,
 }
 
 /**
@@ -47,12 +45,6 @@ export function gql(
 export function gql(
   source: "\nquery GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {\n  findImages(filter: $filter, image_filter: $imageFilter) {\n    count\n    images {\n      id\n      date\n      rating100\n      o_counter\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n\t\t\ttags {\n        name\n      }\n    }\n  }\n}"
 ): (typeof documents)["\nquery GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {\n  findImages(filter: $filter, image_filter: $imageFilter) {\n    count\n    images {\n      id\n      date\n      rating100\n      o_counter\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n\t\t\ttags {\n        name\n      }\n    }\n  }\n}"]
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(
-  source: "\nquery GetTags($filter: FindFilterType) {\n  findTags(filter: $filter) {\n    count\n    tags {\n      id\n      name\n      scene_count\n      image_count\n      scene_marker_count\n      performer_count\n    }\n  }\n}\n"
-): (typeof documents)["\nquery GetTags($filter: FindFilterType) {\n  findTags(filter: $filter) {\n    count\n    tags {\n      id\n      name\n      scene_count\n      image_count\n      scene_marker_count\n      performer_count\n    }\n  }\n}\n"]
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {}

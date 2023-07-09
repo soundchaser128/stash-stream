@@ -1,6 +1,6 @@
 import {ApolloError, useQuery} from "@apollo/client"
 import {gql} from "../__generated__"
-import {addApiKey, stashUrl} from "../util"
+import {PER_PAGE, addApiKey, stashUrl} from "../util"
 import {useNavigate, useParams, useSearchParams} from "react-router-dom"
 import Carousel, {CarouselItem, ItemType} from "../components/Carousel"
 import {CriterionModifier, SortDirectionEnum} from "../__generated__/graphql"
@@ -61,10 +61,9 @@ query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
   }
 }`)
 
-// const randomPart = Math.floor(Math.random() * 10 ** 8)
-const SORT = "created_at"
-
-export const PER_PAGE = 20
+const randomPart = Math.floor(Math.random() * 10 ** 8)
+// const SORT = "created_at"
+const SORT = `random_${randomPart}`
 
 function useVideos(
   type: ItemType,

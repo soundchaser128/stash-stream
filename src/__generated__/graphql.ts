@@ -4011,6 +4011,9 @@ export type GetScenesQuery = {
     scenes: Array<{
       __typename?: "Scene"
       id: string
+      details?: string | null
+      rating100?: number | null
+      o_counter?: number | null
       date?: string | null
       title?: string | null
       performers: Array<{__typename?: "Performer"; name: string}>
@@ -4039,6 +4042,8 @@ export type GetImagesQuery = {
       __typename?: "Image"
       id: string
       date?: string | null
+      rating100?: number | null
+      o_counter?: number | null
       title?: string | null
       performers: Array<{__typename?: "Performer"; name: string}>
       studio?: {__typename?: "Studio"; name: string} | null
@@ -4131,6 +4136,9 @@ export const GetScenesDocument = {
                     kind: "SelectionSet",
                     selections: [
                       {kind: "Field", name: {kind: "Name", value: "id"}},
+                      {kind: "Field", name: {kind: "Name", value: "details"}},
+                      {kind: "Field", name: {kind: "Name", value: "rating100"}},
+                      {kind: "Field", name: {kind: "Name", value: "o_counter"}},
                       {kind: "Field", name: {kind: "Name", value: "date"}},
                       {
                         kind: "Field",
@@ -4264,6 +4272,8 @@ export const GetImagesDocument = {
                     selections: [
                       {kind: "Field", name: {kind: "Name", value: "id"}},
                       {kind: "Field", name: {kind: "Name", value: "date"}},
+                      {kind: "Field", name: {kind: "Name", value: "rating100"}},
+                      {kind: "Field", name: {kind: "Name", value: "o_counter"}},
                       {
                         kind: "Field",
                         name: {kind: "Name", value: "performers"},

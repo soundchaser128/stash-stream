@@ -15,6 +15,9 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
     count
     scenes {
       id
+      details
+      rating100
+      o_counter
       date
       performers {
         name
@@ -41,6 +44,8 @@ query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
     images {
       id
       date
+      rating100
+      o_counter
       performers {
         name
       }
@@ -56,6 +61,7 @@ query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
 }`)
 
 // const randomPart = Math.floor(Math.random() * 10 ** 8)
+const SORT = "rating"
 
 export const PER_PAGE = 20
 
@@ -76,7 +82,7 @@ function useVideos(
       },
       filter: {
         q: query,
-        sort: "date",
+        sort: SORT,
         direction: SortDirectionEnum.Desc,
         page: page,
       },
@@ -103,7 +109,7 @@ function useImages(
       },
       filter: {
         q: query,
-        sort: "created_at",
+        sort: SORT,
         direction: SortDirectionEnum.Desc,
         page: page,
       },
@@ -164,7 +170,18 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
         const performers = video.performers.map((performer) => performer.name)
         const studio = video.studio?.name || undefined
         const tags = video.tags.map((tag) => tag.name)
-        return {url, title, date, performers, studio, tags, type: "video"}
+        return {
+          url,
+          title,
+          date,
+          performers,
+          studio,
+          tags,
+          details: video.details || undefined,
+          rating: video.rating100 || undefined,
+          oCounter: video.o_counter || undefined,
+          type: "video",
+        }
       })
     case "image":
       return result.data?.findImages.images.map((image) => {
@@ -174,7 +191,17 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
         const performers = image.performers.map((performer) => performer.name)
         const studio = image.studio?.name || undefined
         const tags = image.tags.map((tag) => tag.name)
-        return {url, title, date, performers, studio, tags, type: "image"}
+        return {
+          url,
+          title,
+          date,
+          performers,
+          studio,
+          tags,
+          rating: image.rating100 || undefined,
+          oCounter: image.o_counter || undefined,
+          type: "image",
+        }
       })
   }
 }

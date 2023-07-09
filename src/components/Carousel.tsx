@@ -6,6 +6,7 @@ import {
   HiChevronDown,
   HiChevronUp,
   HiOutlineMagnifyingGlassCircle,
+  HiStar,
   HiTag,
   HiUser,
 } from "react-icons/hi2"
@@ -15,6 +16,7 @@ import {useNavigate} from "react-router-dom"
 import debounce from "lodash.debounce"
 import {PER_PAGE} from "../routes/carousel"
 import clsx from "clsx"
+import Rating from "./Rating"
 
 export type ItemType = "video" | "image"
 
@@ -26,6 +28,9 @@ export interface CarouselItem {
   studio?: string
   date?: string
   tags: string[]
+  details?: string
+  rating?: number
+  oCounter?: number
 }
 
 const buttonStyles =
@@ -220,11 +225,11 @@ function MediaItem({
 
 function Sidebar({item}: {item?: CarouselItem}) {
   return (
-    <section className="hidden lg:flex flex-col bg-white p-4 w-1/4">
+    <section className="hidden lg:flex flex-col bg-purple-50 p-4 w-1/4">
       {item && (
         <>
-          {" "}
           <h1 className="text-3xl truncate font-bold mb-4">{item.title}</h1>
+          {item.details && <p className="mb-4">{item.details}</p>}
           <ul className="flex flex-col gap-2">
             {item.performers.length > 0 && (
               <li className="text-xl">
@@ -257,6 +262,17 @@ function Sidebar({item}: {item?: CarouselItem}) {
                     </li>
                   ))}
                 </ul>
+              </li>
+            )}
+            {item.rating && (
+              <li className="text-xl">
+                <Rating rating={item.rating} />
+              </li>
+            )}
+            {item.oCounter && (
+              <li className="text-xl">
+                <span className="w-4 h-4 mr-2">💦</span>
+                {item.oCounter}
               </li>
             )}
           </ul>

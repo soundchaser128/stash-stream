@@ -223,23 +223,32 @@ function VideosPage() {
   const onVideoChange = async (index: number) => {
     searchParams.set("index", index.toString())
 
-    navigate({
-      search: `?${searchParams.toString()}`,
-    })
+    navigate(
+      {
+        search: `?${searchParams.toString()}`,
+      },
+      {replace: true}
+    )
   }
 
   const onNextPage = async () => {
     searchParams.set("page", (page + 1).toString())
-    navigate({
-      search: `?${searchParams.toString()}`,
-    })
+    navigate(
+      {
+        search: `?${searchParams.toString()}`,
+      },
+      {replace: true}
+    )
   }
 
   const onPreviousPage = async () => {
     searchParams.set("page", (page - 1).toString())
-    navigate({
-      search: `?${searchParams.toString()}`,
-    })
+    navigate(
+      {
+        search: `?${searchParams.toString()}`,
+      },
+      {replace: true}
+    )
   }
 
   return (

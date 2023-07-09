@@ -112,9 +112,12 @@ function Overlay({
 
   const setQueryInUrl = (query: string) => {
     onQueryChange(query)
-    navigate({
-      search: `?q=${encodeURIComponent(query)}`,
-    })
+    navigate(
+      {
+        search: `?q=${encodeURIComponent(query)}`,
+      },
+      {replace: true}
+    )
   }
 
   const debouncedSetQueryInUrl = debounce(setQueryInUrl, 500)

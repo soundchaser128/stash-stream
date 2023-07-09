@@ -13,7 +13,7 @@ import {TypedDocumentNode as DocumentNode} from "@graphql-typed-document-node/co
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-  "\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      details\n      rating100\n      o_counter\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n      tags {\n        name\n      }\n    }\n  }\n}":
+  "\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      play_count\n      details\n      rating100\n      o_counter\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n      tags {\n        name\n      }\n    }\n  }\n}":
     types.GetScenesDocument,
   "\nquery GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {\n  findImages(filter: $filter, image_filter: $imageFilter) {\n    count\n    images {\n      id\n      date\n      rating100\n      o_counter\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n\t\t\ttags {\n        name\n      }\n    }\n  }\n}":
     types.GetImagesDocument,
@@ -39,8 +39,8 @@ export function gql(source: string): unknown
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(
-  source: "\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      details\n      rating100\n      o_counter\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n      tags {\n        name\n      }\n    }\n  }\n}"
-): (typeof documents)["\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      details\n      rating100\n      o_counter\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n      tags {\n        name\n      }\n    }\n  }\n}"]
+  source: "\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      play_count\n      details\n      rating100\n      o_counter\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n      tags {\n        name\n      }\n    }\n  }\n}"
+): (typeof documents)["\nquery GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {\n  findScenes(\n    filter: $filter,\n    scene_filter: $sceneFilter\n  ) {\n    count\n    scenes {\n      id\n      play_count\n      details\n      rating100\n      o_counter\n      date\n      performers {\n        name\n      }\n      studio {\n        name\n      }\n      title\n      files {\n        basename\n        duration\n      }\n      tags {\n        name\n      }\n    }\n  }\n}"]
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

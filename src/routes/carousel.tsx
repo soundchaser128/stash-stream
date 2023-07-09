@@ -15,6 +15,7 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
     count
     scenes {
       id
+      play_count
       details
       rating100
       o_counter
@@ -180,6 +181,7 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
           details: video.details || undefined,
           rating: video.rating100 || undefined,
           oCounter: video.o_counter || undefined,
+          views: video.play_count || undefined,
           type: "video",
         }
       })

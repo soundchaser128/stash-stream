@@ -4011,6 +4011,7 @@ export type GetScenesQuery = {
     scenes: Array<{
       __typename?: "Scene"
       id: string
+      play_count?: number | null
       details?: string | null
       rating100?: number | null
       o_counter?: number | null
@@ -4136,6 +4137,10 @@ export const GetScenesDocument = {
                     kind: "SelectionSet",
                     selections: [
                       {kind: "Field", name: {kind: "Name", value: "id"}},
+                      {
+                        kind: "Field",
+                        name: {kind: "Name", value: "play_count"},
+                      },
                       {kind: "Field", name: {kind: "Name", value: "details"}},
                       {kind: "Field", name: {kind: "Name", value: "rating100"}},
                       {kind: "Field", name: {kind: "Name", value: "o_counter"}},

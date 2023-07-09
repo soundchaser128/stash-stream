@@ -4,6 +4,7 @@ import {
   HiCalendar,
   HiCamera,
   HiChevronDown,
+  HiChevronLeft,
   HiChevronUp,
   HiOutlineMagnifyingGlassCircle,
   HiTag,
@@ -11,11 +12,15 @@ import {
 } from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
-import {useNavigate} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 import debounce from "lodash.debounce"
 import {PER_PAGE} from "../routes/carousel"
 import clsx from "clsx"
 import Rating from "./Rating"
+
+function pluralize(word: string, count: number) {
+  return count === 1 ? word : `${word}s`
+}
 
 export type ItemType = "video" | "image"
 
@@ -30,6 +35,7 @@ export interface CarouselItem {
   details?: string
   rating?: number
   oCounter?: number
+  views?: number
 }
 
 const buttonStyles =
@@ -76,6 +82,10 @@ interface OverlayProps {
   hasNextItem: boolean
   hasPreviousItem: boolean
 }
+
+const searchInputStyles = `text-white absolute top-1 w-60 text-center left-1/2 
+translate -translate-x-1/2 h-12 px-4 leading-6 bg-opacity-0 border-b-2 border-white 
+bg-transparent focus:border-b-2 focus:outline-none placeholder-white`
 
 function Overlay({
   item,
@@ -135,7 +145,7 @@ function Overlay({
       onMouseMove={showOverlay}
       onClick={showOverlay}
       onKeyUp={showOverlay}
-      className="w-full h-full absolute z-10"
+      className="w-full h-full absolute top-0 left-0 z-10"
       style={springs}
     >
       {visible && (
@@ -146,12 +156,15 @@ function Overlay({
             hasNextItem={hasNextItem}
             hasPreviousItem={hasPreviousItem}
           />
+          <Link to="/" className={clsx(buttonStyles, "top-2 left-2 absolute")}>
+            <HiChevronLeft />
+          </Link>
         </>
       )}
       <input
         onChange={onChange}
         placeholder="Search..."
-        className="text-white absolute top-1 w-60 text-center left-1/2 translate -translate-x-1/2 h-12 px-4 leading-6 bg-opacity-0 border-b-2 border-white bg-transparent focus:border-b-2 focus:outline-none placeholder-white"
+        className={searchInputStyles}
       />
 
       {item && (
@@ -191,10 +204,12 @@ function MediaItem({
   item,
   style,
   crop,
+  goToNext,
 }: {
   item: CarouselItem
   style: any
   crop: boolean
+  goToNext: () => void
 }) {
   if (item.type === "video") {
     return (
@@ -206,6 +221,7 @@ function MediaItem({
         loop
         className={clsx("absolute w-full h-full", crop && "object-cover")}
         style={style}
+        onEnded={goToNext}
       />
     )
   } else {
@@ -233,15 +249,29 @@ function Sidebar({
   totalResults: number
 }) {
   return (
-    <section className="hidden lg:flex flex-col bg-purple-50 p-4 w-1/4 overflow-y-scroll overflow-x-hidden">
+    <section className="hidden lg:flex flex-col bg-purple-50 p-4 w-1/4 overflow-y-scroll overflow-x-hidden text-lg">
       {item && (
         <>
-          <h1 className="text-3xl truncate font-bold mb-4">{item.title}</h1>
-          <p className="mb-4">
-            Found <strong>{totalResults}</strong> results.
-          </p>
-          {item.details && <p className="mb-4">{item.details}</p>}
           <ul className="flex flex-col gap-2">
+            <li className={listItemStyles}>
+              <strong>{item.title}</strong>
+            </li>
+            <li className="flex gap-6 items-center">
+              {item.rating && <Rating rating={item.rating} />}
+              {item.oCounter && (
+                <span>
+                  <span className="w-4 h-4">💦</span>
+                  {item.oCounter}
+                </span>
+              )}
+              {item.views && (
+                <span>
+                  {item.views} {pluralize("view", item.views)}
+                </span>
+              )}
+            </li>
+            {item.details && <li className={listItemStyles}>{item.details}</li>}
+
             {item.performers.length > 0 && (
               <li className={listItemStyles}>
                 <HiUser className="inline w-4 h-4" />
@@ -262,7 +292,7 @@ function Sidebar({
             )}
             {item.tags.length > 0 && (
               <li className={listItemStyles}>
-                <ul className="text-xs flex flex-wrap items-center gap-1">
+                <ul className="text-sm flex flex-wrap items-center gap-1">
                   <HiTag className="inline w-6 h-6 mr-2" />
                   {item.tags.map((tag) => (
                     <li
@@ -273,17 +303,6 @@ function Sidebar({
                     </li>
                   ))}
                 </ul>
-              </li>
-            )}
-            {item.rating && (
-              <li className={listItemStyles}>
-                <Rating rating={item.rating} />
-              </li>
-            )}
-            {item.oCounter && (
-              <li className={listItemStyles}>
-                <span className="w-4 h-4">💦</span>
-                {item.oCounter}
               </li>
             )}
           </ul>
@@ -383,7 +402,12 @@ function Carousel({
         {!loading &&
           items.length > 0 &&
           transitions((style, index) => (
-            <MediaItem style={style} item={items[index]} crop={crop} />
+            <MediaItem
+              style={style}
+              item={items[index]}
+              crop={crop}
+              goToNext={nextItem}
+            />
           ))}
         <Overlay
           item={items[index]}

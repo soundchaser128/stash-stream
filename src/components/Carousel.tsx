@@ -61,20 +61,20 @@ function NavButtons({
 }
 
 interface OverlayProps {
-  video?: Video
-  nextVideo: () => void
-  previousVideo: () => void
-  onCropVideo: () => void
+  item?: CarouselItem
+  nextItem: () => void
+  previousItem: () => void
+  onCrop: () => void
   onQueryChange: (query: string) => void
   hasNextPage: boolean
   hasPreviousPage: boolean
 }
 
 function Overlay({
-  video,
-  nextVideo,
-  previousVideo,
-  onCropVideo,
+  item,
+  nextItem,
+  previousItem,
+  onCrop,
   onQueryChange,
   hasNextPage,
   hasPreviousPage,
@@ -133,8 +133,8 @@ function Overlay({
       {visible && (
         <>
           <NavButtons
-            goToNextVideo={nextVideo}
-            goToPreviousVideo={previousVideo}
+            goToNextVideo={nextItem}
+            goToPreviousVideo={previousItem}
             hasNextPage={hasNextPage}
             hasPreviousPage={hasPreviousPage}
           />
@@ -146,37 +146,72 @@ function Overlay({
         className="text-white absolute top-1 w-60 text-center left-1/2 translate -translate-x-1/2 h-12 px-4 leading-6 bg-opacity-0 border-b-2 border-white bg-transparent focus:border-b-2 focus:outline-none placeholder-white"
       />
 
-      {video && (
+      {item && (
         <section className="absolute left-1/2 -translate-x-1/2 text-center truncate bottom-4 text-white p-2">
-          <h1 className="text-xl lg:text-2xl">{video.title}</h1>
-          {video.performers.length > 0 && (
+          <h1 className="text-xl lg:text-2xl">{item.title}</h1>
+          {item.performers.length > 0 && (
             <p className="text-lg">
               <HiUser className="inline w-4 h-4 mr-2" />
-              {video.performers.join(", ")}
+              {item.performers.join(", ")}
             </p>
           )}
-          {video.studio && (
+          {item.studio && (
             <p className="text-lg">
               <HiCamera className="inline w-4 h-4 mr-2" />
-              {video.studio}
+              {item.studio}
             </p>
           )}
-          {video.date && (
+          {item.date && (
             <p className="text-lg">
               <HiCalendar className="inline w-4 h-4 mr-2" />
-              {video.date}
+              {item.date}
             </p>
           )}
         </section>
       )}
       <button
-        onClick={onCropVideo}
+        onClick={onCrop}
         className={`${buttonStyles} absolute top-2 right-2`}
       >
         <HiOutlineMagnifyingGlassCircle />
       </button>
     </animated.div>
   )
+}
+
+function MediaItem({
+  item,
+  style,
+  cropVideo,
+}: {
+  item: CarouselItem
+  style: any
+  cropVideo: boolean
+}) {
+  if (item.type === "video") {
+    return (
+      <animated.video
+        src={item.url}
+        playsInline
+        autoPlay
+        muted
+        loop
+        className="absolute w-full h-full"
+        style={{
+          ...style,
+          objectFit: cropVideo ? "cover" : undefined,
+        }}
+      />
+    )
+  } else {
+    return (
+      <animated.img
+        src={item.url}
+        className="absolute max-h-full w-full object-contain"
+        style={style}
+      />
+    )
+  }
 }
 
 interface Props {
@@ -259,25 +294,14 @@ function Carousel({
       {!loading &&
         items.length > 0 &&
         transitions((style, index) => (
-          <animated.video
-            src={items[index]?.url}
-            playsInline
-            autoPlay
-            muted
-            loop
-            className="absolute w-full h-full"
-            style={{
-              ...style,
-              objectFit: cropVideo ? "cover" : undefined,
-            }}
-          />
+          <MediaItem style={style} item={items[index]} cropVideo={cropVideo} />
         ))}
 
       <Overlay
-        video={items[index]}
-        nextVideo={nextVideo}
-        previousVideo={previousVideo}
-        onCropVideo={() => setCropVideo((prev) => !prev)}
+        item={items[index]}
+        nextItem={nextVideo}
+        previousItem={previousVideo}
+        onCrop={() => setCropVideo((prev) => !prev)}
         onQueryChange={onQueryChange}
         hasNextPage={hasNextPage}
         hasPreviousPage={hasPreviousPage}

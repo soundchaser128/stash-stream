@@ -1,4 +1,4 @@
-import {useQuery} from "@apollo/client"
+import {ApolloError, useQuery} from "@apollo/client"
 import {gql} from "../__generated__"
 import {addApiKey, stashUrl} from "../util"
 import {useNavigate, useParams, useSearchParams} from "react-router-dom"
@@ -104,16 +104,18 @@ function useImages(
 }
 
 type Result =
-  | {type: ItemType}
+  | {type: undefined; data?: undefined; loading: boolean; error?: ApolloError}
   | {
       type: "video"
-      videos: NonNullable<ReturnType<typeof useVideos>>["data"]
+      data?: NonNullable<ReturnType<typeof useVideos>>["data"]
       loading: boolean
+      error?: ApolloError
     }
   | {
       type: "image"
-      images: NonNullable<ReturnType<typeof useImages>>["data"]
+      data?: NonNullable<ReturnType<typeof useImages>>["data"]
       loading: boolean
+      error?: ApolloError
     }
 
 function useItems(
@@ -126,21 +128,44 @@ function useItems(
   const images = useImages(type, query, page, tag)
   if (type == "video") {
     const {loading, error, data} = videos!
-    return {}
+    return {
+      type: "video",
+      data,
+      loading,
+      error,
+    }
   } else {
+    const {loading, error, data} = images!
     return {
       type: "image",
-      images: images!,
+      data,
+      loading,
+      error,
     }
   }
 }
 
-const getItems = (result: Result): CarouselItem[] => {
+const getItems = (result: Result): CarouselItem[] | undefined => {
   switch (result.type) {
     case "video":
-      return []
+      return result.data?.findScenes.scenes.map((video) => {
+        const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)
+        const title = video.title || video.files[0].basename
+        const date = video.date || undefined
+        const performers = video.performers.map((performer) => performer.name)
+        const studio = video.studio?.name || undefined
+        return {url, title, date, performers, studio, type: "video"}
+      })
     case "image":
-      return []
+      return result.data?.findImages.images.map((image) => {
+        const url = addApiKey(`${stashUrl}/image/${image.id}/image`)
+        const title = image.title || image.id
+        const date = image.date || undefined
+        const performers = image.performers.map((performer) => performer.name)
+        const studio = image.studio?.name || undefined
+        const tags = image.tags.map((tag) => tag.name)
+        return {url, title, date, performers, studio, tags, type: "image"}
+      })
   }
 }
 
@@ -154,21 +179,9 @@ function VideosPage() {
   const params = useParams<{type: ItemType}>()
   const result = useItems(params.type!, query, page, tag)
   const items = useMemo(() => getItems(result), [result])
-
-  // const totalPages = data?.findScenes.count
-  //   ? Math.ceil(data.findScenes.count / PER_PAGE)
-  //   : 0
-
-  // const items = useMemo(() => {
-  //   return data?.findScenes.scenes.map((video) => {
-  //     const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)
-  //     const title = video.title || video.files[0].basename
-  //     const date = video.date || undefined
-  //     const performers = video.performers.map((performer) => performer.name)
-  //     const studio = video.studio?.name || undefined
-  //     return {url, title, date, performers, studio}
-  //   })
-  // }, [data])
+  const loading = result.loading
+  const error = result.error
+  const totalPages = 15
 
   const onVideoChange = async (index: number) => {
     searchParams.set("index", index.toString())
@@ -194,12 +207,12 @@ function VideosPage() {
 
   return (
     <main className="h-screen w-screen bg-black">
-      {/* {error && (
+      {error && (
         <div className="flex flex-col  text-white p-4">
           <strong>{error.name}:</strong>
           <code>{error.message}</code>
         </div>
-      )} */}
+      )}
 
       <div className="relative h-full w-full">
         {items && items.length > 0 && (
@@ -207,7 +220,7 @@ function VideosPage() {
             loading={loading}
             items={items}
             initialIndex={index}
-            onVideoChange={onVideoChange}
+            onItemChange={onVideoChange}
             onNextPage={onNextPage}
             onPreviousPage={onPreviousPage}
             page={page}

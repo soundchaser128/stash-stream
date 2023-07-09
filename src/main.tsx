@@ -37,7 +37,7 @@ const router = createBrowserRouter([
     element: <Index />,
   },
   {
-    path: "/carousel/",
+    path: "/carousel/:type",
     element: <Carousel />,
     children: [],
   },

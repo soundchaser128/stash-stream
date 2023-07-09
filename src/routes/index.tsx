@@ -35,16 +35,27 @@ export default function Index() {
     <main className="container flex items-center flex-col mr-auto ml-auto">
       <section className="inline-grid grid-cols-4 gap-4">
         {data?.findTags.tags.map((tag) => (
-          <Link
-            to={{
-              pathname: "/carousel",
-              search: `?q=${tag.name}`,
-            }}
-          >
-            <article key={tag.id} className="bg-purple-50 shadow-md p-2">
-              <h2 className="text-xl text-center">{tag.name}</h2>
-            </article>
-          </Link>
+          <article key={tag.id} className="bg-purple-50 shadow-md p-2">
+            <h2 className="text-xl text-center">{tag.name}</h2>
+            <div className="flex justify-between">
+              <Link
+                to={{
+                  pathname: "/carousel/video",
+                  search: `?tag=${tag.id}`,
+                }}
+              >
+                Videos
+              </Link>
+              <Link
+                to={{
+                  pathname: "/carousel/image",
+                  search: `?tag=${tag.id}`,
+                }}
+              >
+                Images
+              </Link>
+            </div>
+          </article>
         ))}
       </section>
     </main>

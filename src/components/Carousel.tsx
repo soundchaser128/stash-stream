@@ -14,7 +14,10 @@ import {useNavigate} from "react-router-dom"
 import debounce from "lodash.debounce"
 import {PER_PAGE} from "../routes/carousel"
 
-interface Video {
+export type ItemType = "video" | "image"
+
+interface CarouselItem {
+  type: ItemType
   url: string
   title: string
   performers: string[]
@@ -177,32 +180,32 @@ function Overlay({
 }
 
 interface Props {
-  videos: Video[]
+  items: CarouselItem[]
   cropVideo?: boolean
   loading?: boolean
   initialIndex?: number
-  onVideoChange?: (index: number) => void
+  onItemChange?: (index: number) => void
   onNextPage: () => Promise<void>
   onPreviousPage: () => Promise<void>
   page: number
   totalPages: number
 }
 
-function VideoCarousel({
-  videos,
+function Carousel({
+  items,
   loading,
   initialIndex,
-  onVideoChange,
+  onItemChange,
   onNextPage,
   onPreviousPage,
   page,
   totalPages,
 }: Props) {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(initialIndex || 0)
+  const [index, setIndex] = useState(initialIndex || 0)
   const [direction, setDirection] = useState(1)
   const [cropVideo, setCropVideo] = useState(false)
 
-  const transitions = useTransition(currentVideoIndex, {
+  const transitions = useTransition(index, {
     from: {transform: `translateY(${direction === 1 ? "100%" : "-100%"})`},
     enter: {transform: "translateY(0%)"},
     leave: {transform: `translateY(${direction === 1 ? "-100%" : "100%"})`},
@@ -218,34 +221,34 @@ function VideoCarousel({
   })
 
   const nextVideo = async () => {
-    let nextIndex = currentVideoIndex + 1
-    if (nextIndex === videos.length - 1) {
+    let nextIndex = index + 1
+    if (nextIndex === items.length - 1) {
       await onNextPage()
       nextIndex = 0
     }
-    setCurrentVideoIndex(nextIndex)
+    setIndex(nextIndex)
     setDirection(1)
-    onVideoChange && onVideoChange(nextIndex)
+    onItemChange && onItemChange(nextIndex)
   }
 
   const previousVideo = async () => {
-    let nextIndex = currentVideoIndex - 1
+    let nextIndex = index - 1
 
     if (nextIndex < 0) {
       await onPreviousPage()
       nextIndex = PER_PAGE - 1
     }
 
-    setCurrentVideoIndex(nextIndex)
+    setIndex(nextIndex)
     setDirection(-1)
-    onVideoChange && onVideoChange(nextIndex)
+    onItemChange && onItemChange(nextIndex)
   }
 
-  useHotkeys(["w", "up"], previousVideo, [currentVideoIndex, length])
-  useHotkeys(["s", "down"], nextVideo, [currentVideoIndex, length])
+  useHotkeys(["w", "up"], previousVideo, [index, length])
+  useHotkeys(["s", "down"], nextVideo, [index, length])
 
   const onQueryChange = () => {
-    setCurrentVideoIndex(0)
+    setIndex(0)
   }
 
   const hasNextPage = page < totalPages - 1
@@ -254,10 +257,10 @@ function VideoCarousel({
   return (
     <div {...bind()} className="relative w-full h-full touch-none">
       {!loading &&
-        videos.length > 0 &&
+        items.length > 0 &&
         transitions((style, index) => (
           <animated.video
-            src={videos[index]?.url}
+            src={items[index]?.url}
             playsInline
             autoPlay
             muted
@@ -271,7 +274,7 @@ function VideoCarousel({
         ))}
 
       <Overlay
-        video={videos[currentVideoIndex]}
+        video={items[index]}
         nextVideo={nextVideo}
         previousVideo={previousVideo}
         onCropVideo={() => setCropVideo((prev) => !prev)}
@@ -283,4 +286,4 @@ function VideoCarousel({
   )
 }
 
-export default VideoCarousel
+export default Carousel

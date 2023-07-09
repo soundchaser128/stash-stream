@@ -4024,6 +4024,27 @@ export type GetScenesQuery = {
   }
 }
 
+export type GetImagesQueryVariables = Exact<{
+  filter?: InputMaybe<FindFilterType>
+}>
+
+export type GetImagesQuery = {
+  __typename?: "Query"
+  findImages: {
+    __typename?: "FindImagesResultType"
+    count: number
+    images: Array<{
+      __typename?: "Image"
+      id: string
+      date?: string | null
+      title?: string | null
+      performers: Array<{__typename?: "Performer"; name: string}>
+      studio?: {__typename?: "Studio"; name: string} | null
+      tags: Array<{__typename?: "Tag"; name: string}>
+    }>
+  }
+}
+
 export type GetTagsQueryVariables = Exact<{
   filter?: InputMaybe<FindFilterType>
 }>
@@ -4164,6 +4185,102 @@ export const GetScenesDocument = {
     },
   ],
 } as unknown as DocumentNode<GetScenesQuery, GetScenesQueryVariables>
+export const GetImagesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: {kind: "Name", value: "GetImages"},
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {kind: "Variable", name: {kind: "Name", value: "filter"}},
+          type: {
+            kind: "NamedType",
+            name: {kind: "Name", value: "FindFilterType"},
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: {kind: "Name", value: "findImages"},
+            arguments: [
+              {
+                kind: "Argument",
+                name: {kind: "Name", value: "filter"},
+                value: {
+                  kind: "Variable",
+                  name: {kind: "Name", value: "filter"},
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {kind: "Field", name: {kind: "Name", value: "count"}},
+                {
+                  kind: "Field",
+                  name: {kind: "Name", value: "images"},
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {kind: "Field", name: {kind: "Name", value: "id"}},
+                      {kind: "Field", name: {kind: "Name", value: "date"}},
+                      {
+                        kind: "Field",
+                        name: {kind: "Name", value: "performers"},
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "name"},
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: "Field",
+                        name: {kind: "Name", value: "studio"},
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "name"},
+                            },
+                          ],
+                        },
+                      },
+                      {kind: "Field", name: {kind: "Name", value: "title"}},
+                      {
+                        kind: "Field",
+                        name: {kind: "Name", value: "tags"},
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "name"},
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetImagesQuery, GetImagesQueryVariables>
 export const GetTagsDocument = {
   kind: "Document",
   definitions: [

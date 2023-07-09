@@ -423,11 +423,7 @@ function Carousel({
           hasNextItem={hasNextItem}
           hasPreviousItem={hasPreviousItem}
         />
-        {loading && (
-          <div className="flex flex-col items-center justify-center w-full h-full ">
-            Loading...
-          </div>
-        )}
+
         {items?.length === 0 && !loading && (
           <div className="flex flex-col items-center mt-16 justify-center text-white p-4">
             <h1 className="text-4xl">No results</h1>

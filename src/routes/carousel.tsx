@@ -266,6 +266,11 @@ function VideosPage() {
       )}
 
       <div className="relative h-full w-full">
+        {loading && (
+          <div className="text-3xl absolute top-0 left-0 flex flex-col items-center justify-center w-full h-full z-20 text-white">
+            Loading...
+          </div>
+        )}
         {items && (
           <Carousel
             loading={loading}

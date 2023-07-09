@@ -16,7 +16,7 @@ import {PER_PAGE} from "../routes/carousel"
 
 export type ItemType = "video" | "image"
 
-interface CarouselItem {
+export interface CarouselItem {
   type: ItemType
   url: string
   title: string

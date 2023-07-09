@@ -218,7 +218,11 @@ function VideosPage() {
   const items = useMemo(() => getItems(result), [result])
   const loading = result.loading
   const error = result.error
-  const totalPages = 15
+  const count =
+    (result.type === "image"
+      ? result.data?.findImages.count
+      : result.data?.findScenes.count) ?? 0
+  const totalPages = Math.ceil(count / PER_PAGE)
 
   const onVideoChange = async (index: number) => {
     searchParams.set("index", index.toString())
@@ -252,7 +256,7 @@ function VideosPage() {
   }
 
   return (
-    <main className="h-screen w-screen bg-black">
+    <main className="h-screen w-screen bg-black overflow-hidden">
       {error && (
         <div className="flex flex-col  text-white p-4">
           <strong>{error.name}:</strong>
@@ -271,6 +275,7 @@ function VideosPage() {
             onPreviousPage={onPreviousPage}
             page={page}
             totalPages={totalPages}
+            totalResults={count}
           />
         )}
       </div>

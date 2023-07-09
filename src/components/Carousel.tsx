@@ -6,7 +6,6 @@ import {
   HiChevronDown,
   HiChevronUp,
   HiOutlineMagnifyingGlassCircle,
-  HiStar,
   HiTag,
   HiUser,
 } from "react-icons/hi2"
@@ -37,30 +36,30 @@ const buttonStyles =
   "rounded-full p-3 bg-purple-400 bg-opacity-50 text-white disabled:opacity-25"
 
 function NavButtons({
-  goToPreviousVideo,
-  goToNextVideo,
-  hasNextPage,
-  hasPreviousPage,
+  goToPrevious,
+  goToNext,
+  hasNextItem,
+  hasPreviousItem,
 }: {
-  goToPreviousVideo: () => void
-  goToNextVideo: () => void
-  hasNextPage: boolean
-  hasPreviousPage: boolean
+  goToPrevious: () => void
+  goToNext: () => void
+  hasNextItem: boolean
+  hasPreviousItem: boolean
 }) {
   return (
     <div className="absolute flex flex-col gap-6 right-4 top-1/2 -translate-y-1/2 z-20">
       <button
         className={buttonStyles}
-        disabled={!hasPreviousPage}
-        onClick={() => goToPreviousVideo()}
+        disabled={!hasPreviousItem}
+        onClick={() => goToPrevious()}
       >
         <HiChevronUp className="w-8 h-8" />
       </button>
 
       <button
         className={buttonStyles}
-        disabled={!hasNextPage}
-        onClick={() => goToNextVideo()}
+        disabled={!hasNextItem}
+        onClick={() => goToNext()}
       >
         <HiChevronDown className="w-8 h-8" />
       </button>
@@ -74,8 +73,8 @@ interface OverlayProps {
   previousItem: () => void
   onCrop: () => void
   onQueryChange: (query: string) => void
-  hasNextPage: boolean
-  hasPreviousPage: boolean
+  hasNextItem: boolean
+  hasPreviousItem: boolean
 }
 
 function Overlay({
@@ -84,8 +83,8 @@ function Overlay({
   previousItem,
   onCrop,
   onQueryChange,
-  hasNextPage,
-  hasPreviousPage,
+  hasNextItem,
+  hasPreviousItem,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
@@ -101,10 +100,6 @@ function Overlay({
     },
   }))
   const timeout = useRef<number>()
-
-  const onMouseMove = () => {
-    showOverlay()
-  }
 
   useEffect(() => {
     showOverlay()
@@ -137,17 +132,19 @@ function Overlay({
 
   return (
     <animated.div
-      onMouseMove={onMouseMove}
+      onMouseMove={showOverlay}
+      onClick={showOverlay}
+      onKeyUp={showOverlay}
       className="w-full h-full absolute z-10"
       style={springs}
     >
       {visible && (
         <>
           <NavButtons
-            goToNextVideo={nextItem}
-            goToPreviousVideo={previousItem}
-            hasNextPage={hasNextPage}
-            hasPreviousPage={hasPreviousPage}
+            goToNext={nextItem}
+            goToPrevious={previousItem}
+            hasNextItem={hasNextItem}
+            hasPreviousItem={hasPreviousItem}
           />
         </>
       )}
@@ -193,11 +190,11 @@ function Overlay({
 function MediaItem({
   item,
   style,
-  cropVideo,
+  crop,
 }: {
   item: CarouselItem
   style: any
-  cropVideo: boolean
+  crop: boolean
 }) {
   if (item.type === "video") {
     return (
@@ -207,7 +204,7 @@ function MediaItem({
         autoPlay
         muted
         loop
-        className={clsx("absolute w-full h-full", cropVideo && "object-cover")}
+        className={clsx("absolute w-full h-full", crop && "object-cover")}
         style={style}
       />
     )
@@ -217,8 +214,8 @@ function MediaItem({
         src={item.url}
         className={clsx(
           "absolute w-full h-full",
-          !cropVideo && "object-contain",
-          cropVideo && "object-cover"
+          !crop && "object-contain",
+          crop && "object-cover"
         )}
         style={style}
       />
@@ -226,36 +223,47 @@ function MediaItem({
   }
 }
 
-function Sidebar({item}: {item?: CarouselItem}) {
+const listItemStyles = "flex gap-2 items-center"
+
+function Sidebar({
+  item,
+  totalResults,
+}: {
+  item?: CarouselItem
+  totalResults: number
+}) {
   return (
-    <section className="hidden lg:flex flex-col bg-purple-50 p-4 w-1/4">
+    <section className="hidden lg:flex flex-col bg-purple-50 p-4 w-1/4 overflow-y-scroll overflow-x-hidden">
       {item && (
         <>
           <h1 className="text-3xl truncate font-bold mb-4">{item.title}</h1>
+          <p className="mb-4">
+            Found <strong>{totalResults}</strong> results.
+          </p>
           {item.details && <p className="mb-4">{item.details}</p>}
           <ul className="flex flex-col gap-2">
             {item.performers.length > 0 && (
-              <li className="text-xl">
-                <HiUser className="inline w-4 h-4 mr-2" />
+              <li className={listItemStyles}>
+                <HiUser className="inline w-4 h-4" />
                 {item.performers.join(", ")}
               </li>
             )}
             {item.studio && (
-              <li className="text-xl">
-                <HiCamera className="inline w-4 h-4 mr-2" />
+              <li className={listItemStyles}>
+                <HiCamera className="inline w-4 h-4" />
                 {item.studio}
               </li>
             )}
             {item.date && (
-              <li className="text-xl">
-                <HiCalendar className="inline w-4 h-4 mr-2" />
+              <li className={listItemStyles}>
+                <HiCalendar className="inline w-4 h-4" />
                 {item.date}
               </li>
             )}
             {item.tags.length > 0 && (
-              <li>
-                <ul className="text-sm flex flex-wrap items-center gap-1">
-                  <HiTag classname="inline w-6 h-6 mr-2" />
+              <li className={listItemStyles}>
+                <ul className="text-xs flex flex-wrap items-center gap-1">
+                  <HiTag className="inline w-6 h-6 mr-2" />
                   {item.tags.map((tag) => (
                     <li
                       key={tag}
@@ -268,13 +276,13 @@ function Sidebar({item}: {item?: CarouselItem}) {
               </li>
             )}
             {item.rating && (
-              <li className="text-xl">
+              <li className={listItemStyles}>
                 <Rating rating={item.rating} />
               </li>
             )}
             {item.oCounter && (
-              <li className="text-xl">
-                <span className="w-4 h-4 mr-2">💦</span>
+              <li className={listItemStyles}>
+                <span className="w-4 h-4">💦</span>
                 {item.oCounter}
               </li>
             )}
@@ -287,7 +295,7 @@ function Sidebar({item}: {item?: CarouselItem}) {
 
 interface Props {
   items: CarouselItem[]
-  cropVideo?: boolean
+  crop?: boolean
   loading?: boolean
   initialIndex?: number
   onItemChange?: (index: number) => void
@@ -295,6 +303,7 @@ interface Props {
   onPreviousPage: () => Promise<void>
   page: number
   totalPages: number
+  totalResults: number
 }
 
 function Carousel({
@@ -306,10 +315,13 @@ function Carousel({
   onPreviousPage,
   page,
   totalPages,
+  totalResults,
 }: Props) {
   const [index, setIndex] = useState(initialIndex || 0)
   const [direction, setDirection] = useState(1)
-  const [cropVideo, setCropVideo] = useState(false)
+  const [crop, setCrop] = useState(false)
+  const hasNextItem = index < items.length - 1 || page < totalPages - 1
+  const hasPreviousItem = index !== 0 || page > 1
 
   const transitions = useTransition(index, {
     from: {transform: `translateY(${direction === 1 ? "100%" : "-100%"})`},
@@ -320,15 +332,19 @@ function Carousel({
   const bind = useDrag((props) => {
     const [, swipeY] = props.swipe
     if (swipeY === -1) {
-      nextVideo()
+      nextItem()
     } else if (swipeY === 1) {
-      previousVideo()
+      previousItem()
     }
   })
 
-  const nextVideo = async () => {
+  const nextItem = async () => {
+    if (!hasNextItem) {
+      return
+    }
+
     let nextIndex = index + 1
-    if (nextIndex === items.length - 1) {
+    if (nextIndex === items.length - 1 && page < totalPages - 1) {
       await onNextPage()
       nextIndex = 0
     }
@@ -337,7 +353,11 @@ function Carousel({
     onItemChange && onItemChange(nextIndex)
   }
 
-  const previousVideo = async () => {
+  const previousItem = async () => {
+    if (!hasPreviousItem) {
+      return
+    }
+
     let nextIndex = index - 1
 
     if (nextIndex < 0) {
@@ -350,35 +370,29 @@ function Carousel({
     onItemChange && onItemChange(nextIndex)
   }
 
-  useHotkeys(["w", "up"], previousVideo, [index, length])
-  useHotkeys(["s", "down"], nextVideo, [index, length])
+  useHotkeys(["w", "up"], previousItem, [index, length])
+  useHotkeys(["s", "down"], nextItem, [index, length])
 
   const onQueryChange = () => {
     setIndex(0)
   }
 
-  const hasNextPage = page < totalPages - 1
-  const hasPreviousPage = index !== 0 || page > 1
   return (
     <div {...bind()} className="w-full h-full flex">
       <div className="relative touch-none grow">
         {!loading &&
           items.length > 0 &&
           transitions((style, index) => (
-            <MediaItem
-              style={style}
-              item={items[index]}
-              cropVideo={cropVideo}
-            />
+            <MediaItem style={style} item={items[index]} crop={crop} />
           ))}
         <Overlay
           item={items[index]}
-          nextItem={nextVideo}
-          previousItem={previousVideo}
-          onCrop={() => setCropVideo((prev) => !prev)}
+          nextItem={nextItem}
+          previousItem={previousItem}
+          onCrop={() => setCrop((prev) => !prev)}
           onQueryChange={onQueryChange}
-          hasNextPage={hasNextPage}
-          hasPreviousPage={hasPreviousPage}
+          hasNextItem={hasNextItem}
+          hasPreviousItem={hasPreviousItem}
         />
         {items?.length === 0 && (
           <div className="flex flex-col items-center mt-16 justify-center text-white p-4">
@@ -388,7 +402,7 @@ function Carousel({
         )}
       </div>
 
-      <Sidebar item={items[index]} />
+      <Sidebar item={items[index]} totalResults={totalResults} />
     </div>
   )
 }

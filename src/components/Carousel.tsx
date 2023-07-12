@@ -5,6 +5,7 @@ import {
   HiCamera,
   HiChevronDown,
   HiChevronLeft,
+  HiChevronRight,
   HiChevronUp,
   HiOutlineMagnifyingGlassCircle,
   HiTag,
@@ -254,9 +255,22 @@ function Sidebar({
   totalResults: number
   index: number
 }) {
+  const [collapsed, setCollapsed] = useState(false)
+
   return (
-    <section className="hidden lg:flex flex-col bg-gray-900 p-4 w-1/4 overflow-y-scroll overflow-x-hidden text-lg">
-      {item && (
+    <section
+      className={clsx(
+        "hidden lg:flex flex-col bg-gray-900 p-4 overflow-y-scroll overflow-x-hidden text-lg relative",
+        collapsed ? "w-4" : "w-1/4"
+      )}
+    >
+      <button
+        onClick={() => setCollapsed((set) => !set)}
+        className="absolute top-1/2 left-1 bg-gray-800 rounded-full p-2"
+      >
+        {collapsed ? <HiChevronLeft /> : <HiChevronRight />}
+      </button>
+      {item && !collapsed && (
         <div className="h-full flex flex-col justify-between">
           <ul className="flex flex-col gap-2">
             <li className={listItemStyles}>
@@ -266,7 +280,7 @@ function Sidebar({
               {item.rating && <Rating rating={item.rating} />}
               {item.oCounter && (
                 <span>
-                  <span className="w-4 h-4">💦</span>
+                  <span className="w-4 h-4 mr-2">💦</span>
                   {item.oCounter}
                 </span>
               )}

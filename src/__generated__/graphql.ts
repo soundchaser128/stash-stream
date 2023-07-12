@@ -4024,7 +4024,7 @@ export type GetScenesQuery = {
         basename: string
         duration: number
       }>
-      tags: Array<{__typename?: "Tag"; name: string}>
+      tags: Array<{__typename?: "Tag"; name: string; id: string}>
     }>
   }
 }
@@ -4048,7 +4048,7 @@ export type GetImagesQuery = {
       title?: string | null
       performers: Array<{__typename?: "Performer"; name: string}>
       studio?: {__typename?: "Studio"; name: string} | null
-      tags: Array<{__typename?: "Tag"; name: string}>
+      tags: Array<{__typename?: "Tag"; name: string; id: string}>
     }>
   }
 }
@@ -4178,6 +4178,7 @@ export const GetScenesDocument = {
                               kind: "Field",
                               name: {kind: "Name", value: "name"},
                             },
+                            {kind: "Field", name: {kind: "Name", value: "id"}},
                           ],
                         },
                       },
@@ -4295,6 +4296,7 @@ export const GetImagesDocument = {
                               kind: "Field",
                               name: {kind: "Name", value: "name"},
                             },
+                            {kind: "Field", name: {kind: "Name", value: "id"}},
                           ],
                         },
                       },

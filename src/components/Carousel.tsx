@@ -24,6 +24,11 @@ function pluralize(word: string, count: number) {
 
 export type ItemType = "video" | "image"
 
+interface Tag {
+  id: string
+  name: string
+}
+
 export interface CarouselItem {
   type: ItemType
   url: string
@@ -31,7 +36,7 @@ export interface CarouselItem {
   performers: string[]
   studio?: string
   date?: string
-  tags: string[]
+  tags: Tag[]
   details?: string
   rating?: number
   oCounter?: number
@@ -39,7 +44,7 @@ export interface CarouselItem {
 }
 
 const buttonStyles =
-  "rounded-full p-3 bg-purple-400 bg-opacity-50 text-white disabled:opacity-25"
+  "rounded-full p-3 bg-blue-400 bg-opacity-50 text-white disabled:opacity-25"
 
 function NavButtons({
   goToPrevious,
@@ -250,7 +255,7 @@ function Sidebar({
   index: number
 }) {
   return (
-    <section className="hidden lg:flex flex-col bg-purple-50 p-4 w-1/4 overflow-y-scroll overflow-x-hidden text-lg">
+    <section className="hidden lg:flex flex-col bg-gray-900 p-4 w-1/4 overflow-y-scroll overflow-x-hidden text-lg">
       {item && (
         <div className="h-full flex flex-col justify-between">
           <ul className="flex flex-col gap-2">
@@ -271,7 +276,11 @@ function Sidebar({
                 </span>
               )}
             </li>
-            {item.details && <li className={listItemStyles}>{item.details}</li>}
+            {item.details && (
+              <li className={clsx(listItemStyles, "text-sm")}>
+                {item.details}
+              </li>
+            )}
 
             {item.performers.length > 0 && (
               <li className={listItemStyles}>
@@ -293,14 +302,18 @@ function Sidebar({
             )}
             {item.tags.length > 0 && (
               <li className={listItemStyles}>
-                <ul className="text-sm flex flex-wrap items-center gap-1">
-                  <HiTag className="inline w-6 h-6 mr-2" />
+                <ul className="text-xs flex flex-wrap items-center gap-x-1 gap-y-3">
+                  <HiTag className="inline w-4 h-4 mr-2" />
                   {item.tags.map((tag) => (
-                    <li
-                      key={tag}
-                      className="bg-purple-200 rounded-full py-1 px-3"
-                    >
-                      {tag}
+                    <li key={tag.id}>
+                      <Link
+                        className="bg-blue-600 hover:bg-blue-500 rounded-full py-1 px-3"
+                        to={{
+                          search: `?tag=${encodeURIComponent(tag.id)}`,
+                        }}
+                      >
+                        {tag.name}
+                      </Link>
                     </li>
                   ))}
                 </ul>

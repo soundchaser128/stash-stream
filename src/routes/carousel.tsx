@@ -33,6 +33,7 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
       }
       tags {
         name
+        id
       }
     }
   }
@@ -56,13 +57,13 @@ query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
       title
 			tags {
         name
+        id
       }
     }
   }
 }`)
 
 const randomPart = Math.floor(Math.random() * 10 ** 8)
-// const SORT = "created_at"
 const SORT = `random_${randomPart}`
 
 function useVideos(
@@ -169,7 +170,7 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
         const date = video.date || undefined
         const performers = video.performers.map((performer) => performer.name)
         const studio = video.studio?.name || undefined
-        const tags = video.tags.map((tag) => tag.name)
+        const tags = video.tags
         return {
           url,
           title,
@@ -191,7 +192,7 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
         const date = image.date || undefined
         const performers = image.performers.map((performer) => performer.name)
         const studio = image.studio?.name || undefined
-        const tags = image.tags.map((tag) => tag.name)
+        const tags = image.tags
         return {
           url,
           title,

@@ -2,7 +2,7 @@ import {HiCamera, HiVideoCamera} from "react-icons/hi2"
 import {Link} from "react-router-dom"
 
 const buttonStyles =
-  "bg-purple-400 text-lg text-white p-4 text-xl rounded-lg shadow-lg flex items-center justify-center gap-2"
+  "bg-blue-600 text-lg text-white p-4 text-xl rounded-lg shadow-lg flex items-center justify-center gap-2"
 
 export default function Index() {
   return (

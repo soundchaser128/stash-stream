@@ -7,14 +7,12 @@ import {
   HiChevronLeft,
   HiChevronRight,
   HiChevronUp,
-  HiOutlineMagnifyingGlassCircle,
   HiTag,
   HiUser,
 } from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
-import {Link, useNavigate} from "react-router-dom"
-import debounce from "lodash.debounce"
+import {Link} from "react-router-dom"
 import clsx from "clsx"
 import Rating from "./Rating"
 import {PER_PAGE} from "../util"
@@ -45,7 +43,7 @@ export interface CarouselItem {
 }
 
 const buttonStyles =
-  "rounded-full p-3 bg-blue-400 bg-opacity-50 text-white disabled:opacity-25"
+  "p-3 bg-blue-400 bg-opacity-50 text-white disabled:opacity-25"
 
 function NavButtons({
   goToPrevious,
@@ -83,28 +81,18 @@ interface OverlayProps {
   item?: CarouselItem
   nextItem: () => void
   previousItem: () => void
-  onCrop: () => void
-  onQueryChange: (query: string) => void
   hasNextItem: boolean
   hasPreviousItem: boolean
 }
 
-const searchInputStyles = `text-white absolute top-1 w-60 text-center left-1/2 
-translate -translate-x-1/2 h-12 px-4 leading-6 bg-opacity-0 border-b-2 border-white 
-bg-transparent focus:border-b-2 focus:outline-none placeholder-white`
-
 function Overlay({
-  item,
   nextItem,
   previousItem,
-  onCrop,
-  onQueryChange,
   hasNextItem,
   hasPreviousItem,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
-  const navigate = useNavigate()
   const [visible, setVisible] = useState(true)
   const [springs, api] = useSpring(() => ({
     from: {opacity: 0},
@@ -121,23 +109,6 @@ function Overlay({
     showOverlay()
   }, [])
 
-  const setQueryInUrl = (query: string) => {
-    onQueryChange(query)
-    navigate(
-      {
-        search: `?q=${encodeURIComponent(query)}`,
-      },
-      {replace: true}
-    )
-  }
-
-  const debouncedSetQueryInUrl = debounce(setQueryInUrl, 500)
-
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    showOverlay()
-    debouncedSetQueryInUrl(event.target.value)
-  }
-
   const showOverlay = () => {
     clearTimeout(timeout.current)
     api.start({opacity: 1})
@@ -151,7 +122,6 @@ function Overlay({
       onMouseMove={showOverlay}
       onClick={showOverlay}
       onKeyUp={showOverlay}
-      className="w-full h-full absolute top-0 left-0 z-10"
       style={springs}
     >
       {visible && (
@@ -162,46 +132,14 @@ function Overlay({
             hasNextItem={hasNextItem}
             hasPreviousItem={hasPreviousItem}
           />
-          <Link to="/" className={clsx(buttonStyles, "top-2 left-2 absolute")}>
+          <Link
+            to="/"
+            className={clsx(buttonStyles, "top-2 left-2 absolute z-10")}
+          >
             <HiChevronLeft />
           </Link>
         </>
       )}
-      <input
-        onChange={onChange}
-        placeholder="Search..."
-        className={searchInputStyles}
-      />
-
-      {item && (
-        <section className="absolute left-1/2 -translate-x-1/2 text-center truncate bottom-4 text-white p-2">
-          <h1 className="text-xl lg:text-2xl">{item.title}</h1>
-          {item.performers.length > 0 && (
-            <p className="text-lg">
-              <HiUser className="inline w-4 h-4 mr-2" />
-              {item.performers.join(", ")}
-            </p>
-          )}
-          {item.studio && (
-            <p className="text-lg">
-              <HiCamera className="inline w-4 h-4 mr-2" />
-              {item.studio}
-            </p>
-          )}
-          {item.date && (
-            <p className="text-lg">
-              <HiCalendar className="inline w-4 h-4 mr-2" />
-              {item.date}
-            </p>
-          )}
-        </section>
-      )}
-      <button
-        onClick={onCrop}
-        className={`${buttonStyles} absolute top-2 right-2`}
-      >
-        <HiOutlineMagnifyingGlassCircle />
-      </button>
     </animated.div>
   )
 }
@@ -209,12 +147,10 @@ function Overlay({
 function MediaItem({
   item,
   style,
-  crop,
   goToNext,
 }: {
   item: CarouselItem
   style: any
-  crop: boolean
   goToNext: () => void
 }) {
   if (item.type === "video") {
@@ -224,20 +160,17 @@ function MediaItem({
         playsInline
         autoPlay
         muted
-        className={clsx("absolute w-full h-full", crop && "object-cover")}
+        className={clsx("absolute w-full h-full")}
         style={style}
         onEnded={goToNext}
+        controls
       />
     )
   } else {
     return (
       <animated.img
         src={item.url}
-        className={clsx(
-          "absolute w-full h-full",
-          !crop && "object-contain",
-          crop && "object-cover"
-        )}
+        className={clsx("absolute w-full h-full object-contain")}
         style={style}
       />
     )
@@ -369,7 +302,6 @@ function Carousel({
 }: Props) {
   const [index, setIndex] = useState(initialIndex || 0)
   const [direction, setDirection] = useState(1)
-  const [crop, setCrop] = useState(false)
   const hasNextItem = index < items.length - 1 || page < totalPages - 1
   const hasPreviousItem = index !== 0 || page > 1
 
@@ -423,30 +355,19 @@ function Carousel({
   useHotkeys(["w", "up"], previousItem, [index, length])
   useHotkeys(["s", "down"], nextItem, [index, length])
 
-  const onQueryChange = () => {
-    setIndex(0)
-  }
-
   return (
     <div {...bind()} className="w-full h-full flex touch-none">
       <div className="relative grow">
         {!loading &&
           items.length > 0 &&
           transitions((style, index) => (
-            <MediaItem
-              style={style}
-              item={items[index]}
-              crop={crop}
-              goToNext={nextItem}
-            />
+            <MediaItem style={style} item={items[index]} goToNext={nextItem} />
           ))}
 
         <Overlay
           item={items[index]}
           nextItem={nextItem}
           previousItem={previousItem}
-          onCrop={() => setCrop((prev) => !prev)}
-          onQueryChange={onQueryChange}
           hasNextItem={hasNextItem}
           hasPreviousItem={hasPreviousItem}
         />

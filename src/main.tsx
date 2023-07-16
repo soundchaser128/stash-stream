@@ -10,11 +10,11 @@ import {
 } from "@apollo/client"
 import {setContext} from "@apollo/client/link/context"
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
-import {apiKey, stashUrl} from "./util.ts"
+import {apiKey} from "./util.ts"
 import Index from "./routes/index.tsx"
 
 const httpLink = createHttpLink({
-  uri: `${stashUrl}/graphql`,
+  uri: "/graphql",
 })
 
 const authLink = setContext((_, {headers}) => {

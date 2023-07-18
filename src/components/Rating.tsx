@@ -14,7 +14,7 @@ const Rating: React.FC<Props> = ({rating}) => {
   }
   for (let i = 0; i < halfStars; i++) {
     stars.push(
-      <HiOutlineStar key={i + 10} className="inline text-yellow-500" />
+      <HiOutlineStar key={i + 10} className="inline text-yellow-500" />,
     )
   }
 

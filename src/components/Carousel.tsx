@@ -21,7 +21,7 @@ function pluralize(word: string, count: number) {
   return count === 1 ? word : `${word}s`
 }
 
-export type ItemType = "video" | "image"
+export type ItemType = "video" | "image" | "marker"
 
 interface Tag {
   id: string
@@ -153,7 +153,7 @@ function MediaItem({
   style: any
   goToNext: () => void
 }) {
-  if (item.type === "video") {
+  if (item.type === "video" || item.type === "marker") {
     return (
       <animated.video
         src={item.url}
@@ -194,7 +194,7 @@ function Sidebar({
     <section
       className={clsx(
         "hidden lg:flex flex-col bg-gray-900 p-4 overflow-y-scroll overflow-x-hidden text-lg relative",
-        collapsed ? "w-4" : "w-1/4"
+        collapsed ? "w-4" : "w-1/4",
       )}
     >
       <button

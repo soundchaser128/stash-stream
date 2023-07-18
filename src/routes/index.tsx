@@ -1,4 +1,4 @@
-import {HiCamera, HiVideoCamera} from "react-icons/hi2"
+import {HiCamera, HiTag, HiVideoCamera} from "react-icons/hi2"
 import {Link} from "react-router-dom"
 
 const buttonStyles =
@@ -8,7 +8,7 @@ export default function Index() {
   return (
     <main className="container flex items-center flex-col mr-auto ml-auto px-1">
       <h1 className="text-4xl my-6 font-bold">StashStream</h1>
-      <section className="inline-grid grid-cols-2 gap-4">
+      <section className="inline-grid grid-cols-3 gap-4">
         <Link to="/carousel/video" className={buttonStyles}>
           <HiVideoCamera className="inline-block" />
           Scenes
@@ -17,6 +17,11 @@ export default function Index() {
         <Link to="/carousel/image" className={buttonStyles}>
           <HiCamera className="inline-block" />
           Images
+        </Link>
+
+        <Link to="/carousel/marker" className={buttonStyles}>
+          <HiTag className="inline-block" />
+          Markers
         </Link>
       </section>
     </main>

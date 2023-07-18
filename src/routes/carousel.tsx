@@ -63,14 +63,69 @@ query GetImages($filter: FindFilterType, $imageFilter: ImageFilterType) {
   }
 }`)
 
+const GET_MARKERS = gql(`
+query GetMarkers($filter: FindFilterType, $markerFilter: SceneMarkerFilterType) {
+  findSceneMarkers(filter: $filter, scene_marker_filter: $markerFilter) {
+    count
+    scene_markers {
+      id
+      title
+      primary_tag {
+        name
+      }
+      seconds
+      scene {
+        id
+        date
+        details
+        play_count
+        rating100
+        o_counter
+        performers {
+          name
+        }
+        studio {
+          name
+        }
+        title
+        tags {
+          id
+          name
+        }
+      }
+    }
+  }
+}`)
+
 const randomPart = Math.floor(Math.random() * 10 ** 8)
 const SORT = `random_${randomPart}`
+
+function useMarkers(
+  type: ItemType,
+  query: string,
+  page: number,
+  tag: string | null,
+) {
+  const result = useQuery(GET_MARKERS, {
+    skip: type !== "marker",
+    variables: {
+      filter: {
+        q: query,
+        sort: SORT,
+        direction: SortDirectionEnum.Desc,
+        page: page,
+      },
+    },
+  })
+
+  return type === "marker" ? result : undefined
+}
 
 function useVideos(
   type: ItemType,
   query: string,
   page: number,
-  tag: string | null
+  tag: string | null,
 ) {
   const result = useQuery(GET_SCENES, {
     skip: type !== "video",
@@ -97,7 +152,7 @@ function useImages(
   type: ItemType,
   query: string,
   page: number,
-  tag: string | null
+  tag: string | null,
 ) {
   const result = useQuery(GET_IMAGES, {
     skip: type !== "image",
@@ -133,15 +188,22 @@ type Result =
       loading: boolean
       error?: ApolloError
     }
+  | {
+      type: "marker"
+      data?: NonNullable<ReturnType<typeof useMarkers>>["data"]
+      loading: boolean
+      error?: ApolloError
+    }
 
 function useItems(
   type: ItemType,
   query: string,
   page: number,
-  tag: string | null
+  tag: string | null,
 ): Result {
   const videos = useVideos(type, query, page, tag)
   const images = useImages(type, query, page, tag)
+  const markers = useMarkers(type, query, page, tag)
   if (type == "video") {
     const {loading, error, data} = videos!
     return {
@@ -150,10 +212,18 @@ function useItems(
       loading,
       error,
     }
-  } else {
+  } else if (type == "image") {
     const {loading, error, data} = images!
     return {
       type: "image",
+      data,
+      loading,
+      error,
+    }
+  } else {
+    const {loading, error, data} = markers!
+    return {
+      type: "marker",
       data,
       loading,
       error,
@@ -163,6 +233,32 @@ function useItems(
 
 const getItems = (result: Result): CarouselItem[] | undefined => {
   switch (result.type) {
+    case "marker":
+      return result.data?.findSceneMarkers.scene_markers.map((marker) => {
+        const url = addApiKey(
+          `${stashUrl}/scene/${marker.scene.id}/stream#t=${marker.seconds}`,
+        )
+        const title = `${marker.scene.title} - ${marker.primary_tag.name}`
+        const date = marker.scene.date || undefined
+        const performers = marker.scene.performers.map(
+          (performer) => performer.name,
+        )
+        const studio = marker.scene.studio?.name || undefined
+        const tags = marker.scene.tags
+        return {
+          url,
+          title,
+          date,
+          performers,
+          studio,
+          tags,
+          details: marker.scene.details || undefined,
+          rating: marker.scene.rating100 || undefined,
+          oCounter: marker.scene.o_counter || undefined,
+          views: marker.scene.play_count || undefined,
+          type: "marker",
+        }
+      })
     case "video":
       return result.data?.findScenes.scenes.map((video) => {
         const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)
@@ -223,7 +319,10 @@ function VideosPage() {
   const count =
     (result.type === "image"
       ? result.data?.findImages.count
-      : result.data?.findScenes.count) ?? 0
+      : result.type === "marker"
+      ? result.data?.findSceneMarkers.count
+      : result.data?.findScenes.count) || 0
+
   const totalPages = Math.ceil(count / PER_PAGE)
 
   const onVideoChange = async (index: number) => {
@@ -233,7 +332,7 @@ function VideosPage() {
       {
         search: `?${searchParams.toString()}`,
       },
-      {replace: true}
+      {replace: true},
     )
   }
 
@@ -243,7 +342,7 @@ function VideosPage() {
       {
         search: `?${searchParams.toString()}`,
       },
-      {replace: true}
+      {replace: true},
     )
   }
 
@@ -253,7 +352,7 @@ function VideosPage() {
       {
         search: `?${searchParams.toString()}`,
       },
-      {replace: true}
+      {replace: true},
     )
   }
 

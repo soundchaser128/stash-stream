@@ -321,6 +321,10 @@ function Carousel({
     from: {transform: `translateY(${direction === 1 ? "100%" : "-100%"})`},
     enter: {transform: "translateY(0%)"},
     leave: {transform: `translateY(${direction === 1 ? "-100%" : "100%"})`},
+    config: {
+      friction: 15,
+      tension: 100,
+    }
   })
 
   const bind = useDrag((props) => {

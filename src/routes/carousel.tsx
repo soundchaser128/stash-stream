@@ -405,24 +405,17 @@ function VideosPage() {
       )}
 
       <div className="relative h-full w-full">
-        {loading && (
-          <div className="text-3xl absolute top-0 left-0 flex flex-col items-center justify-center w-full h-full z-20 text-white">
-            Loading...
-          </div>
-        )}
-        {items && (
-          <Carousel
-            loading={loading}
-            items={items}
-            initialIndex={index}
-            onItemChange={onVideoChange}
-            onNextPage={onNextPage}
-            onPreviousPage={onPreviousPage}
-            page={page}
-            totalPages={totalPages}
-            totalResults={count}
-          />
-        )}
+        <Carousel
+          loading={loading}
+          items={items || []}
+          initialIndex={index}
+          onItemChange={onVideoChange}
+          onNextPage={onNextPage}
+          onPreviousPage={onPreviousPage}
+          page={page}
+          totalPages={totalPages}
+          totalResults={count}
+        />
       </div>
     </main>
   )

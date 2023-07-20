@@ -12,7 +12,7 @@ import {
 } from "react-icons/hi2"
 import {useHotkeys} from "react-hotkeys-hook"
 import {useDrag} from "@use-gesture/react"
-import {Link} from "react-router-dom"
+import {Link, useNavigate, useSearchParams} from "react-router-dom"
 import clsx from "clsx"
 import Rating from "./Rating"
 import {PER_PAGE} from "../util"
@@ -211,7 +211,23 @@ function Sidebar({
   totalResults: number
   index: number
 }) {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams({q: ""})
   const [collapsed, setCollapsed] = useState(false)
+  const [query, setQuery] = useState(searchParams.get("q") || "")
+
+  const onQueryChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setQuery(event.target.value)
+      navigate(
+        {
+          search: `?q=${encodeURIComponent(event.target.value)}`,
+        },
+        {replace: true},
+      )
+    },
+    [],
+  )
 
   return (
     <section
@@ -226,73 +242,85 @@ function Sidebar({
       >
         {collapsed ? <HiChevronLeft /> : <HiChevronRight />}
       </button>
-      {item && !collapsed && (
+      {!collapsed && (
         <div className="h-full flex flex-col justify-between">
-          <ul className="flex flex-col gap-2">
-            <li className={listItemStyles}>
-              <strong>{item.title}</strong>
-            </li>
-            <li className="flex gap-6 items-center">
-              {item.rating && <Rating rating={item.rating} />}
-              {item.oCounter && (
-                <span>
-                  <span className="w-4 h-4 mr-2">💦</span>
-                  {item.oCounter}
-                </span>
-              )}
-              {item.views && (
-                <span>
-                  {item.views} {pluralize("view", item.views)}
-                </span>
-              )}
-            </li>
-            {item.details && (
-              <li className={clsx(listItemStyles, "text-sm")}>
-                {item.details}
+          {!item && <div></div>}
+          {item && (
+            <ul className="flex flex-col gap-2">
+              <li className={listItemStyles}>
+                <strong>{item.title}</strong>
               </li>
-            )}
+              <li className="flex gap-6 items-center">
+                {item.rating && <Rating rating={item.rating} />}
+                {item.oCounter && (
+                  <span>
+                    <span className="w-4 h-4 mr-2">💦</span>
+                    {item.oCounter}
+                  </span>
+                )}
+                {item.views && (
+                  <span>
+                    {item.views} {pluralize("view", item.views)}
+                  </span>
+                )}
+              </li>
+              {item.details && (
+                <li className={clsx(listItemStyles, "text-sm")}>
+                  {item.details}
+                </li>
+              )}
 
-            {item.performers.length > 0 && (
-              <li className={listItemStyles}>
-                <HiUser className="inline w-4 h-4" />
-                {item.performers.join(", ")}
-              </li>
-            )}
-            {item.studio && (
-              <li className={listItemStyles}>
-                <HiCamera className="inline w-4 h-4" />
-                {item.studio}
-              </li>
-            )}
-            {item.date && (
-              <li className={listItemStyles}>
-                <HiCalendar className="inline w-4 h-4" />
-                {item.date}
-              </li>
-            )}
-            {item.tags.length > 0 && (
-              <li className={listItemStyles}>
-                <ul className="text-xs flex flex-wrap items-center gap-x-1 gap-y-3">
-                  <HiTag className="inline w-4 h-4 mr-2" />
-                  {item.tags.map((tag) => (
-                    <li key={tag.id}>
-                      <Link
-                        className="bg-blue-600 hover:bg-blue-500 rounded-full py-1 px-3"
-                        to={{
-                          search: `?tag=${encodeURIComponent(tag.id)}`,
-                        }}
-                      >
-                        {tag.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            )}
-          </ul>
-          <p className="w-full text-center text-sm">
-            {index + 1} / {totalResults}
-          </p>
+              {item.performers.length > 0 && (
+                <li className={listItemStyles}>
+                  <HiUser className="inline w-4 h-4" />
+                  {item.performers.join(", ")}
+                </li>
+              )}
+              {item.studio && (
+                <li className={listItemStyles}>
+                  <HiCamera className="inline w-4 h-4" />
+                  {item.studio}
+                </li>
+              )}
+              {item.date && (
+                <li className={listItemStyles}>
+                  <HiCalendar className="inline w-4 h-4" />
+                  {item.date}
+                </li>
+              )}
+              {item.tags.length > 0 && (
+                <li className={listItemStyles}>
+                  <ul className="text-xs flex flex-wrap items-center gap-x-1 gap-y-3">
+                    <HiTag className="inline w-4 h-4 mr-2" />
+                    {item.tags.map((tag) => (
+                      <li key={tag.id}>
+                        <Link
+                          className="bg-blue-600 hover:bg-blue-500 rounded-full py-1 px-3"
+                          to={{
+                            search: `?tag=${encodeURIComponent(tag.id)}`,
+                          }}
+                        >
+                          {tag.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              )}
+            </ul>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <input
+              placeholder="Search..."
+              value={query}
+              onChange={onQueryChange}
+              className="self-center bg-transparent focus-visible:outline-none border-b-2 border-white text-center p-2"
+            />
+            <p className="w-full text-center text-sm">
+              {index + 1} / {totalResults}
+            </p>
+          </div>
         </div>
       )}
     </section>
@@ -382,14 +410,18 @@ function Carousel({
   useHotkeys(["w", "up"], previousItem, [index, length])
   useHotkeys(["s", "down"], nextItem, [index, length])
 
+  const showMedia = !loading && items.length > 0
+
   return (
     <div {...bind()} className="w-full h-full flex touch-none">
       <div className="relative grow">
-        {!loading &&
-          items.length > 0 &&
+        {showMedia &&
           transitions((style, index) => (
             <MediaItem style={style} item={items[index]} goToNext={nextItem} />
           ))}
+        {!showMedia && (
+          <animated.div className={clsx("absolute w-full h-full")} />
+        )}
 
         <Overlay
           item={items[index]}

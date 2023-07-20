@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react"
+import React, {useCallback, useEffect, useRef, useState} from "react"
 import {useTransition, animated, useSpring} from "@react-spring/web"
 import {
   HiCalendar,
@@ -112,25 +112,36 @@ function Overlay({
   }))
   const timeout = useRef<number>()
 
-  useEffect(() => {
-    showOverlay()
-  }, [])
-
-  const showOverlay = () => {
+  const showOverlay = useCallback(() => {
     clearTimeout(timeout.current)
     api.start({opacity: 1})
     timeout.current = window.setTimeout(() => {
       api.start({opacity: 0})
     }, overlayTimeout)
-  }
+  }, [api])
+
+  useEffect(() => {
+    showOverlay()
+    // create event handler for mouse movement
+    document.addEventListener("mousemove", showOverlay)
+
+    // create event handler for clicking
+    document.addEventListener("mousedown", showOverlay)
+
+    // create event handler for keydown
+    document.addEventListener("keydown", showOverlay)
+
+    // cleanup
+    return () => {
+      clearTimeout(timeout.current)
+      document.removeEventListener("mousemove", showOverlay)
+      document.removeEventListener("mousedown", showOverlay)
+      document.removeEventListener("keydown", showOverlay)
+    }
+  }, [])
 
   return (
-    <animated.div
-      onMouseMove={showOverlay}
-      onClick={showOverlay}
-      onKeyUp={showOverlay}
-      style={springs}
-    >
+    <animated.div style={springs}>
       {visible && (
         <>
           <NavButtons
@@ -324,7 +335,7 @@ function Carousel({
     config: {
       friction: 15,
       tension: 100,
-    }
+    },
   })
 
   const bind = useDrag((props) => {

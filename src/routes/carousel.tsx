@@ -6,6 +6,8 @@ import Carousel, {CarouselItem, ItemType} from "../components/Carousel"
 import {CriterionModifier, SortDirectionEnum} from "../__generated__/graphql"
 import {useMemo} from "react"
 
+const INCLUDED_STREAMS = ["Direct stream", "MP4", "WEBM"]
+
 const GET_SCENES = gql(`
 query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
   findScenes(
@@ -19,6 +21,14 @@ query GetScenes($filter: FindFilterType, $sceneFilter: SceneFilterType) {
       details
       rating100
       o_counter
+      sceneStreams {
+        url
+        mime_type
+        label
+      }
+      paths {
+        screenshot
+      }
       date
       performers {
         name
@@ -81,6 +91,14 @@ query GetMarkers($filter: FindFilterType, $markerFilter: SceneMarkerFilterType) 
         play_count
         rating100
         o_counter
+        sceneStreams {
+          url
+          mime_type
+          label
+        }
+        paths {
+          screenshot
+        }
         performers {
           name
         }
@@ -104,6 +122,7 @@ function useMarkers(
   type: ItemType,
   query: string,
   page: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   tag: string | null,
 ) {
   const result = useQuery(GET_MARKERS, {
@@ -231,12 +250,17 @@ function useItems(
   }
 }
 
+function addTimestamp(url: string, time: number): string {
+  return `${url}#t=${time}`
+}
+
 const getItems = (result: Result): CarouselItem[] | undefined => {
   switch (result.type) {
     case "marker":
       return result.data?.findSceneMarkers.scene_markers.map((marker) => {
-        const url = addApiKey(
-          `${stashUrl}/scene/${marker.scene.id}/stream#t=${marker.seconds}`,
+        const url = addTimestamp(
+          addApiKey(`${stashUrl}/scene/${marker.scene.id}/stream`)!,
+          marker.seconds,
         )
         const title = `${marker.scene.title} - ${marker.primary_tag.name}`
         const date = marker.scene.date || undefined
@@ -257,11 +281,19 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
           oCounter: marker.scene.o_counter || undefined,
           views: marker.scene.play_count || undefined,
           type: "marker",
+          // FIXME ad #t= to url
+          files: marker.scene.sceneStreams
+            .filter((stream) => INCLUDED_STREAMS.includes(stream.label!))
+            .map((stream) => ({
+              src: addTimestamp(stream.url, marker.seconds),
+              type: stream.mime_type!,
+            })),
+          screenshot: addApiKey(marker.scene.paths.screenshot),
         }
       })
     case "video":
       return result.data?.findScenes.scenes.map((video) => {
-        const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)
+        const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)!
         const title = video.title || video.files[0].basename
         const date = video.date || undefined
         const performers = video.performers.map((performer) => performer.name)
@@ -279,11 +311,18 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
           oCounter: video.o_counter || undefined,
           views: video.play_count || undefined,
           type: "video",
+          files: video.sceneStreams
+            .filter((stream) => INCLUDED_STREAMS.includes(stream.label!))
+            .map((stream) => ({
+              src: stream.url,
+              type: stream.mime_type!,
+            })),
+          screenshot: addApiKey(video.paths.screenshot),
         }
       })
     case "image":
       return result.data?.findImages.images.map((image) => {
-        const url = addApiKey(`${stashUrl}/image/${image.id}/image`)
+        const url = addApiKey(`${stashUrl}/image/${image.id}/image`)!
         const title = image.title || image.id
         const date = image.date || undefined
         const performers = image.performers.map((performer) => performer.name)

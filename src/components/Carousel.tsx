@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {useTransition, animated, useSpring} from "@react-spring/web"
 import {
   HiCalendar,
@@ -28,6 +28,11 @@ interface Tag {
   name: string
 }
 
+interface VideoFile {
+  src: string
+  type: string
+}
+
 export interface CarouselItem {
   type: ItemType
   url: string
@@ -40,6 +45,8 @@ export interface CarouselItem {
   rating?: number
   oCounter?: number
   views?: number
+  files?: VideoFile[]
+  screenshot?: string
 }
 
 const buttonStyles =
@@ -150,13 +157,13 @@ function MediaItem({
   goToNext,
 }: {
   item: CarouselItem
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   style: any
   goToNext: () => void
 }) {
   if (item.type === "video" || item.type === "marker") {
     return (
       <animated.video
-        src={item.url}
         playsInline
         autoPlay
         muted
@@ -164,7 +171,12 @@ function MediaItem({
         style={style}
         onEnded={goToNext}
         controls
-      />
+        poster={item.screenshot}
+      >
+        {item.files?.map((file, idx) => (
+          <source key={idx} src={file.src} type={file.type} />
+        ))}
+      </animated.video>
     )
   } else {
     return (

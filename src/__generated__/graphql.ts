@@ -186,7 +186,6 @@ export type BulkSceneUpdateInput = {
   tag_ids?: InputMaybe<BulkUpdateIds>
   title?: InputMaybe<Scalars["String"]["input"]>
   url?: InputMaybe<Scalars["String"]["input"]>
-  urls?: InputMaybe<BulkUpdateStrings>
 }
 
 export enum BulkUpdateIdMode {
@@ -585,8 +584,6 @@ export type ConfigInterfaceInput = {
   slideshowDelay?: InputMaybe<Scalars["Int"]["input"]>
   /** Enable sound on mouseover previews */
   soundOnPreview?: InputMaybe<Scalars["Boolean"]["input"]>
-  /** Whether to use Stash Hosted Funscript */
-  useStashHostedFunscript?: InputMaybe<Scalars["Boolean"]["input"]>
   /** Wall playback type */
   wallPlayback?: InputMaybe<Scalars["String"]["input"]>
   /** Show title and tags in wall view */
@@ -640,8 +637,6 @@ export type ConfigInterfaceResult = {
   slideshowDelay?: Maybe<Scalars["Int"]["output"]>
   /** Enable sound on mouseover previews */
   soundOnPreview?: Maybe<Scalars["Boolean"]["output"]>
-  /** Whether to use Stash Hosted Funscript */
-  useStashHostedFunscript?: Maybe<Scalars["Boolean"]["output"]>
   /** Wall playback type */
   wallPlayback?: Maybe<Scalars["String"]["output"]>
   /** Show title and tags in wall view */
@@ -1205,14 +1200,6 @@ export type IdentifyMetadataOptions = {
   /** defaults to true if not provided */
   setCoverImage?: Maybe<Scalars["Boolean"]["output"]>
   setOrganized?: Maybe<Scalars["Boolean"]["output"]>
-  /** tag to tag skipped multiple matches with */
-  skipMultipleMatchTag?: Maybe<Scalars["String"]["output"]>
-  /** defaults to true if not provided */
-  skipMultipleMatches?: Maybe<Scalars["Boolean"]["output"]>
-  /** tag to tag skipped single name performers with */
-  skipSingleNamePerformerTag?: Maybe<Scalars["String"]["output"]>
-  /** defaults to true if not provided */
-  skipSingleNamePerformers?: Maybe<Scalars["Boolean"]["output"]>
 }
 
 export type IdentifyMetadataOptionsInput = {
@@ -1223,14 +1210,6 @@ export type IdentifyMetadataOptionsInput = {
   /** defaults to true if not provided */
   setCoverImage?: InputMaybe<Scalars["Boolean"]["input"]>
   setOrganized?: InputMaybe<Scalars["Boolean"]["input"]>
-  /** tag to tag skipped multiple matches with */
-  skipMultipleMatchTag?: InputMaybe<Scalars["String"]["input"]>
-  /** defaults to true if not provided */
-  skipMultipleMatches?: InputMaybe<Scalars["Boolean"]["input"]>
-  /** tag to tag skipped single name performers with */
-  skipSingleNamePerformerTag?: InputMaybe<Scalars["String"]["input"]>
-  /** defaults to true if not provided */
-  skipSingleNamePerformers?: InputMaybe<Scalars["Boolean"]["input"]>
 }
 
 export type IdentifyMetadataTaskOptions = {
@@ -1519,7 +1498,6 @@ export type Movie = {
   __typename?: "Movie"
   aliases?: Maybe<Scalars["String"]["output"]>
   back_image_path?: Maybe<Scalars["String"]["output"]>
-  /** @deprecated MD5 hash of name, use name directly */
   checksum: Scalars["String"]["output"]
   created_at: Scalars["Time"]["output"]
   date?: Maybe<Scalars["String"]["output"]>
@@ -2975,9 +2953,7 @@ export type Scene = {
   tags: Array<Tag>
   title?: Maybe<Scalars["String"]["output"]>
   updated_at: Scalars["Time"]["output"]
-  /** @deprecated Use urls */
   url?: Maybe<Scalars["String"]["output"]>
-  urls?: Maybe<Array<Scalars["String"]["output"]>>
 }
 
 export type SceneCreateInput = {
@@ -3003,7 +2979,6 @@ export type SceneCreateInput = {
   tag_ids?: InputMaybe<Array<Scalars["ID"]["input"]>>
   title?: InputMaybe<Scalars["String"]["input"]>
   url?: InputMaybe<Scalars["String"]["input"]>
-  urls?: InputMaybe<Array<Scalars["String"]["input"]>>
 }
 
 export type SceneDestroyInput = {
@@ -3028,8 +3003,6 @@ export type SceneFilterType = {
   AND?: InputMaybe<SceneFilterType>
   NOT?: InputMaybe<SceneFilterType>
   OR?: InputMaybe<SceneFilterType>
-  /** Filter by audio codec */
-  audio_codec?: InputMaybe<StringCriterionInput>
   /** Filter by captions */
   captions?: InputMaybe<StringCriterionInput>
   /** Filter by file checksum */
@@ -3106,8 +3079,6 @@ export type SceneFilterType = {
   updated_at?: InputMaybe<TimestampCriterionInput>
   /** Filter by url */
   url?: InputMaybe<StringCriterionInput>
-  /** Filter by video codec */
-  video_codec?: InputMaybe<StringCriterionInput>
 }
 
 export type SceneHashInput = {
@@ -3285,7 +3256,6 @@ export type SceneUpdateInput = {
   tag_ids?: InputMaybe<Array<Scalars["ID"]["input"]>>
   title?: InputMaybe<Scalars["String"]["input"]>
   url?: InputMaybe<Scalars["String"]["input"]>
-  urls?: InputMaybe<Array<Scalars["String"]["input"]>>
 }
 
 export type ScenesDestroyInput = {
@@ -3498,9 +3468,7 @@ export type ScrapedScene = {
   studio?: Maybe<ScrapedStudio>
   tags?: Maybe<Array<ScrapedTag>>
   title?: Maybe<Scalars["String"]["output"]>
-  /** @deprecated use urls */
   url?: Maybe<Scalars["String"]["output"]>
-  urls?: Maybe<Array<Scalars["String"]["output"]>>
 }
 
 export type ScrapedSceneInput = {
@@ -3511,7 +3479,6 @@ export type ScrapedSceneInput = {
   remote_site_id?: InputMaybe<Scalars["String"]["input"]>
   title?: InputMaybe<Scalars["String"]["input"]>
   url?: InputMaybe<Scalars["String"]["input"]>
-  urls?: InputMaybe<Array<Scalars["String"]["input"]>>
 }
 
 export type ScrapedStudio = {
@@ -3717,13 +3684,9 @@ export type StatsResultType = {
   performer_count: Scalars["Int"]["output"]
   scene_count: Scalars["Int"]["output"]
   scenes_duration: Scalars["Float"]["output"]
-  scenes_played: Scalars["Int"]["output"]
   scenes_size: Scalars["Float"]["output"]
   studio_count: Scalars["Int"]["output"]
   tag_count: Scalars["Int"]["output"]
-  total_o_count: Scalars["Int"]["output"]
-  total_play_count: Scalars["Int"]["output"]
-  total_play_duration: Scalars["Float"]["output"]
 }
 
 export enum StreamingResolutionEnum {
@@ -3749,7 +3712,6 @@ export type StringCriterionInput = {
 export type Studio = {
   __typename?: "Studio"
   aliases: Array<Scalars["String"]["output"]>
-  /** @deprecated MD5 hash of name, use name directly */
   checksum: Scalars["String"]["output"]
   child_studios: Array<Studio>
   created_at: Scalars["Time"]["output"]
@@ -4055,6 +4017,13 @@ export type GetScenesQuery = {
       o_counter?: number | null
       date?: string | null
       title?: string | null
+      sceneStreams: Array<{
+        __typename?: "SceneStreamEndpoint"
+        url: string
+        mime_type?: string | null
+        label?: string | null
+      }>
+      paths: {__typename?: "ScenePathsType"; screenshot?: string | null}
       performers: Array<{__typename?: "Performer"; name: string}>
       studio?: {__typename?: "Studio"; name: string} | null
       files: Array<{
@@ -4116,6 +4085,13 @@ export type GetMarkersQuery = {
         rating100?: number | null
         o_counter?: number | null
         title?: string | null
+        sceneStreams: Array<{
+          __typename?: "SceneStreamEndpoint"
+          url: string
+          mime_type?: string | null
+          label?: string | null
+        }>
+        paths: {__typename?: "ScenePathsType"; screenshot?: string | null}
         performers: Array<{__typename?: "Performer"; name: string}>
         studio?: {__typename?: "Studio"; name: string} | null
         tags: Array<{__typename?: "Tag"; id: string; name: string}>
@@ -4194,6 +4170,37 @@ export const GetScenesDocument = {
                       {kind: "Field", name: {kind: "Name", value: "details"}},
                       {kind: "Field", name: {kind: "Name", value: "rating100"}},
                       {kind: "Field", name: {kind: "Name", value: "o_counter"}},
+                      {
+                        kind: "Field",
+                        name: {kind: "Name", value: "sceneStreams"},
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {kind: "Field", name: {kind: "Name", value: "url"}},
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "mime_type"},
+                            },
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "label"},
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: "Field",
+                        name: {kind: "Name", value: "paths"},
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "screenshot"},
+                            },
+                          ],
+                        },
+                      },
                       {kind: "Field", name: {kind: "Name", value: "date"}},
                       {
                         kind: "Field",
@@ -4486,6 +4493,40 @@ export const GetMarkersDocument = {
                             {
                               kind: "Field",
                               name: {kind: "Name", value: "o_counter"},
+                            },
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "sceneStreams"},
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: {kind: "Name", value: "url"},
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {kind: "Name", value: "mime_type"},
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {kind: "Name", value: "label"},
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: "Field",
+                              name: {kind: "Name", value: "paths"},
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: {kind: "Name", value: "screenshot"},
+                                  },
+                                ],
+                              },
                             },
                             {
                               kind: "Field",

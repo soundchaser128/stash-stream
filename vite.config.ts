@@ -12,6 +12,8 @@ export default ({mode}) => {
     server: {
       proxy: {
         "/graphql": stashUrl,
+        "/scene": stashUrl,
+        "/image": stashUrl,
       },
     },
   })

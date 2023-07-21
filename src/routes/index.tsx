@@ -8,7 +8,7 @@ export default function Index() {
   return (
     <main className="container flex items-center flex-col mr-auto ml-auto px-1">
       <h1 className="text-4xl my-6 font-bold">StashStream</h1>
-      <section className="inline-grid grid-cols-3 gap-4">
+      <section className="inline-grid lg:grid-cols-3 gap-4">
         <Link to="/carousel/video" className={buttonStyles}>
           <HiVideoCamera className="inline-block" />
           Scenes

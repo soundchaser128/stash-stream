@@ -15,7 +15,7 @@ import {useDrag} from "@use-gesture/react"
 import {Link, useNavigate, useSearchParams} from "react-router-dom"
 import clsx from "clsx"
 import Rating from "./Rating"
-import {PER_PAGE} from "../util"
+import {PER_PAGE, stashUrl} from "../util"
 
 function pluralize(word: string, count: number) {
   return count === 1 ? word : `${word}s`
@@ -185,7 +185,11 @@ function MediaItem({
         poster={item.screenshot}
       >
         {item.files?.map((file, idx) => (
-          <source key={idx} src={file.src} type={file.type} />
+          <source
+            key={idx}
+            src={file.src.replace(stashUrl, "")}
+            type={file.type}
+          />
         ))}
       </animated.video>
     )

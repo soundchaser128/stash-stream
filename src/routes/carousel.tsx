@@ -1,6 +1,6 @@
 import {ApolloError, useQuery} from "@apollo/client"
 import {gql} from "../__generated__"
-import {PER_PAGE, addApiKey, stashUrl} from "../util"
+import {PER_PAGE, addApiKey} from "../util"
 import {useNavigate, useParams, useSearchParams} from "react-router-dom"
 import Carousel, {CarouselItem, ItemType} from "../components/Carousel"
 import {CriterionModifier, SortDirectionEnum} from "../__generated__/graphql"
@@ -259,7 +259,7 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
     case "marker":
       return result.data?.findSceneMarkers.scene_markers.map((marker) => {
         const url = addTimestamp(
-          addApiKey(`${stashUrl}/scene/${marker.scene.id}/stream`)!,
+          addApiKey(`/scene/${marker.scene.id}/stream`)!,
           marker.seconds,
         )
         const title = `${marker.scene.title} - ${marker.primary_tag.name}`
@@ -293,7 +293,7 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
       })
     case "video":
       return result.data?.findScenes.scenes.map((video) => {
-        const url = addApiKey(`${stashUrl}/scene/${video.id}/stream`)!
+        const url = addApiKey(`/scene/${video.id}/stream`)!
         const title = video.title || video.files[0].basename
         const date = video.date || undefined
         const performers = video.performers.map((performer) => performer.name)
@@ -322,7 +322,7 @@ const getItems = (result: Result): CarouselItem[] | undefined => {
       })
     case "image":
       return result.data?.findImages.images.map((image) => {
-        const url = addApiKey(`${stashUrl}/image/${image.id}/image`)!
+        const url = addApiKey(`/image/${image.id}/image`)!
         const title = image.title || image.id
         const date = image.date || undefined
         const performers = image.performers.map((performer) => performer.name)

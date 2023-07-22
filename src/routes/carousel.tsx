@@ -134,6 +134,12 @@ function useMarkers(
         direction: SortDirectionEnum.Desc,
         page: page,
       },
+      markerFilter: {
+        tags: {
+          value: tag ? [tag] : undefined,
+          modifier: CriterionModifier.Includes,
+        }
+      }
     },
   })
 

@@ -7,6 +7,10 @@ export const addApiKey = (url: string | undefined | null) => {
   }
 
   if (apiKey) {
+    if (!url.startsWith("http")) {
+      url = window.origin + url
+    }
+
     const parsedUrl = new URL(url)
     parsedUrl.searchParams.append("apikey", apiKey)
     return parsedUrl.toString()

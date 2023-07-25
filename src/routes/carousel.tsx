@@ -138,8 +138,8 @@ function useMarkers(
         tags: {
           value: tag ? [tag] : undefined,
           modifier: CriterionModifier.Includes,
-        }
-      }
+        },
+      },
     },
   })
 

@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from "react"
 import {useTransition, animated, useSpring} from "@react-spring/web"
 import {
+  HiBars3,
   HiCalendar,
   HiCamera,
   HiChevronDown,
@@ -49,9 +50,6 @@ export interface CarouselItem {
   screenshot?: string
 }
 
-const buttonStyles =
-  "p-3 bg-blue-400 bg-opacity-50 text-white disabled:opacity-25"
-
 function NavButtons({
   goToPrevious,
   goToNext,
@@ -66,7 +64,7 @@ function NavButtons({
   return (
     <div className="absolute flex flex-col gap-6 right-4 top-1/2 -translate-y-1/2 z-20">
       <button
-        className={buttonStyles}
+        className="btn btn-square btn-primary"
         disabled={!hasPreviousItem}
         onClick={() => goToPrevious()}
       >
@@ -74,7 +72,7 @@ function NavButtons({
       </button>
 
       <button
-        className={buttonStyles}
+        className="btn btn-square btn-primary"
         disabled={!hasNextItem}
         onClick={() => goToNext()}
       >
@@ -90,6 +88,8 @@ interface OverlayProps {
   previousItem: () => void
   hasNextItem: boolean
   hasPreviousItem: boolean
+  setCollapsed: React.Dispatch<React.SetStateAction<boolean>>
+  collapsed: boolean
 }
 
 function Overlay({
@@ -97,6 +97,8 @@ function Overlay({
   previousItem,
   hasNextItem,
   hasPreviousItem,
+  setCollapsed,
+  collapsed,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
@@ -122,14 +124,10 @@ function Overlay({
 
   useEffect(() => {
     showOverlay()
-    // create event handler for mouse movement
     document.addEventListener("mousemove", showOverlay)
-
-    // create event handler for clicking
     document.addEventListener("mousedown", showOverlay)
-
-    // create event handler for keydown
     document.addEventListener("keydown", showOverlay)
+    document.addEventListener("touchstart", showOverlay)
 
     // cleanup
     return () => {
@@ -137,6 +135,7 @@ function Overlay({
       document.removeEventListener("mousemove", showOverlay)
       document.removeEventListener("mousedown", showOverlay)
       document.removeEventListener("keydown", showOverlay)
+      document.removeEventListener("touchstart", showOverlay)
     }
   }, [])
 
@@ -144,6 +143,13 @@ function Overlay({
     <animated.div style={springs}>
       {visible && (
         <>
+          <button
+            onClick={() => setCollapsed((set) => !set)}
+            className="btn btn-square btn-neutral absolute top-2 right-2"
+          >
+            <HiBars3 />
+          </button>
+
           <NavButtons
             goToNext={nextItem}
             goToPrevious={previousItem}
@@ -152,7 +158,7 @@ function Overlay({
           />
           <Link
             to="/"
-            className={clsx(buttonStyles, "top-2 left-2 absolute z-10")}
+            className={clsx("btn btn-square", "top-2 left-2 absolute z-10")}
           >
             <HiChevronLeft />
           </Link>
@@ -210,14 +216,16 @@ function Sidebar({
   item,
   totalResults,
   index,
+  collapsed,
 }: {
   item?: CarouselItem
   totalResults: number
   index: number
+  collapsed: boolean
+  setCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams({q: ""})
-  const [collapsed, setCollapsed] = useState(false)
   const [query, setQuery] = useState(searchParams.get("q") || "")
 
   const onQueryChange = useCallback(
@@ -236,16 +244,10 @@ function Sidebar({
   return (
     <section
       className={clsx(
-        "hidden lg:flex flex-col bg-gray-900 p-4 overflow-y-scroll overflow-x-hidden text-lg relative",
-        collapsed ? "w-4" : "w-1/4",
+        "bg-base-200 p-4 overflow-y-scroll overflow-x-hidden text-lg relative",
+        collapsed ? "hidden" : "lg:w-1/4 w-4/5",
       )}
     >
-      <button
-        onClick={() => setCollapsed((set) => !set)}
-        className="absolute top-1/2 left-1 bg-gray-800 rounded-full p-2"
-      >
-        {collapsed ? <HiChevronLeft /> : <HiChevronRight />}
-      </button>
       {!collapsed && (
         <div className="h-full flex flex-col justify-between">
           {!item && <div></div>}
@@ -359,6 +361,7 @@ function Carousel({
   const [direction, setDirection] = useState(1)
   const hasNextItem = index < items.length - 1 || page < totalPages - 1
   const hasPreviousItem = index !== 0 || page > 1
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
 
   const transitions = useTransition(index, {
     from: {transform: `translateY(${direction === 1 ? "100%" : "-100%"})`},
@@ -433,6 +436,8 @@ function Carousel({
           previousItem={previousItem}
           hasNextItem={hasNextItem}
           hasPreviousItem={hasPreviousItem}
+          collapsed={sidebarCollapsed}
+          setCollapsed={setSidebarCollapsed}
         />
 
         {items?.length === 0 && !loading && (
@@ -443,7 +448,13 @@ function Carousel({
         )}
       </div>
 
-      <Sidebar item={items[index]} totalResults={totalResults} index={index} />
+      <Sidebar
+        item={items[index]}
+        totalResults={totalResults}
+        index={index}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+      />
     </div>
   )
 }

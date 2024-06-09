@@ -365,8 +365,8 @@ function VideosPage() {
     (result.type === "image"
       ? result.data?.findImages.count
       : result.type === "marker"
-      ? result.data?.findSceneMarkers.count
-      : result.data?.findScenes.count) || 0
+        ? result.data?.findSceneMarkers.count
+        : result.data?.findScenes.count) || 0
 
   const totalPages = Math.ceil(count / PER_PAGE)
 

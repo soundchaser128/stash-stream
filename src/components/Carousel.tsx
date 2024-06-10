@@ -6,7 +6,6 @@ import {
   HiCamera,
   HiChevronDown,
   HiChevronLeft,
-  HiChevronRight,
   HiChevronUp,
   HiTag,
   HiUser,
@@ -98,7 +97,6 @@ function Overlay({
   hasNextItem,
   hasPreviousItem,
   setCollapsed,
-  collapsed,
 }: OverlayProps) {
   const overlayTimeout = 2000
 
